@@ -1,0 +1,95 @@
+#!/bin/bash
+
+usage()
+{
+    echo  "USAGE 1: source setTestEnv"
+    echo  "Source it from the absolute location of setTestEnv"
+    kill -SIGINT $$
+}
+
+# make sure bash environment
+set_environment_variables()
+{
+    export TEST_DIR=${PWD}
+    export TEST_LIB=$TEST_DIR/lib
+    if [ "$TEST_LIB" != "" ]; then
+        mkdir -p $TEST_LIB
+    fi
+    # setting the absolute location so that the aliases like cp -i wont affect
+    CP="/bin/cp"
+    MV="/bin/mv"
+    RM="/bin/rm"
+    TAR="/bin/tar"
+    GTAR="/usr/sfw/bin/gtar"
+    # don not define UNZIP= bcos it is a environment var that unzip look for
+    unzip="/usr/bin/unzip"
+    export CP TAR MV RM unzip
+    # Force all macs to run in python in 32bit mode
+    if [ `uname -s` = 'Darwin' ]; then
+        export VERSIONER_PYTHON_PREFER_32_BIT=yes
+        TAR="/usr/bin/tar"
+        export TAR
+    fi
+}
+
+refresh_test_libraries()
+{
+    # unpack pytest to ./bin
+    $unzip -o -qq -d $TEST_DIR/bin $TEST_DIR/contrib/pytest-2.3.3.zip
+    $RM -rf $TEST_DIR/bin/pytest
+    $MV $TEST_DIR/bin/pytest-2.3.3 $TEST_DIR/bin/pytest
+    $CP -r $TEST_DIR/bin/pytest $TEST_LIB/.
+
+    # unpack py to ./lib
+    $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/py-1.4.7.zip
+    $RM -rf $TEST_LIB/py
+    $CP -r $TEST_DIR/contrib/py-1.4.7/py $TEST_LIB
+
+    # unpack execnet to ./lib
+    $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/execnet-1.1.zip
+    $RM -rf $TEST_LIB/execnet
+    $CP -r $TEST_DIR/contrib/execnet-1.1/execnet $TEST_LIB
+
+    # unpack pytest-xdist to ./lib
+    $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/pytest-xdist-1.8.zip
+    $RM -rf $TEST_LIB/xdist
+    $CP -r $TEST_DIR/contrib/pytest-xdist-1.8/xdist $TEST_LIB
+
+    # unpack selenium to ./lib
+    # $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/selenium.zip
+    # $RM -rf $TEST_LIB/selenium
+    # $MV $TEST_DIR/contrib/selenium $TEST_LIB
+
+    # unpack qunit in the contrib dir
+    # $unzip -o --qq -d $TEST_DIR/contrib $TEST_DIR/contrib/qunit.zip
+}
+
+# main starts here
+OPTIND=1
+DBRANCH=current
+
+# if HOME env variable is not set, HOME gets ~
+if [[ -z "$HOME" ]]; then
+    HOME=~
+fi
+
+# if no argument is specified, then it just sets test env
+if [ ! -e ${PWD}/setTestEnv ]
+then
+    usage
+fi
+
+set_environment_variables
+refresh_test_libraries
+
+# alias cmd to use pytest., we rely on the python on the PATH, ideally it should be SPLUNK_HOME/bin/python
+alias pytest='python $TEST_DIR/bin/pytest/pytest.py'
+
+# set test artifacts directory and create if not existing
+if [ "$TEST_ARTIFACTS" = "" ]; then
+    export TEST_ARTIFACTS=$TEST_DIR/test_artifacts
+fi
+
+if [ ! -d "$TEST_ARTIFACTS" ]; then
+    mkdir -p $TEST_ARTIFACTS
+fi
