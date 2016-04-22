@@ -1,0 +1,6 @@
+include CHANGELOG
+include LICENSE 
+include README.txt
+include setup.py
+graft testing
+prune .hg 
