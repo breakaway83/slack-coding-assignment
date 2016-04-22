@@ -82,14 +82,14 @@ fi
 set_environment_variables
 refresh_test_libraries
 
+# setting the python path for test libs
+export PYTHONPATH=$TEST_LIB
+echo Run the following command:
+echo export PYTHONPATH=$PYTHONPATH
+echo ""
+
 # alias cmd to use pytest., we rely on the python on the PATH, ideally it should be SPLUNK_HOME/bin/python
 alias pytest='python $TEST_DIR/bin/pytest/pytest.py'
-
-# set test artifacts directory and create if not existing
-if [ "$TEST_ARTIFACTS" = "" ]; then
-    export TEST_ARTIFACTS=$TEST_DIR/test_artifacts
-fi
-
-if [ ! -d "$TEST_ARTIFACTS" ]; then
-    mkdir -p $TEST_ARTIFACTS
-fi
+echo Run the following command:
+echo alias pytest=\'python $TEST_DIR/bin/pytest/pytest.py\'
+echo ""
