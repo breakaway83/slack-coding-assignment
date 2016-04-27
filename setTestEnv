@@ -55,10 +55,10 @@ refresh_test_libraries()
     $RM -rf $TEST_LIB/xdist
     $CP -r $TEST_DIR/contrib/pytest-xdist-1.8/xdist $TEST_LIB
 
-    # unpack selenium to ./lib
-    # $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/selenium.zip
-    # $RM -rf $TEST_LIB/selenium
-    # $MV $TEST_DIR/contrib/selenium $TEST_LIB
+    # unpack httplib2 to ./lib
+    $unzip -o -qq -d $TEST_DIR/contrib $TEST_DIR/contrib/httplib2-0.9.2.zip
+    $RM -rf $TEST_LIB/httplib2-0.9.2
+    $MV $TEST_DIR/contrib/httplib2-0.9.2 $TEST_LIB
 
     # unpack qunit in the contrib dir
     # $unzip -o --qq -d $TEST_DIR/contrib $TEST_DIR/contrib/qunit.zip
