@@ -6,12 +6,9 @@ This module has things regarding a generic Sumo deployment.
 @since: 2016-04-25
 '''
 from abc import ABCMeta, abstractmethod, abstractproperty
-
-from testingframework.exceptions.command_execution import CommandExecutionFailure
-from testingframwrowk.exceptions import UnsupportedConnectorError
+from testingframework.exceptions import UnsupportedConnectorError
 from testingframework.log import Logging
 from testingframework.connector.base import Connector
-from testingframework.connector.sdk import SDKConnector
 from testingframework.connector.rest import RESTConnector
 
 
@@ -38,9 +35,7 @@ class Sumo(Logging):
 
     __metaclass__ = ABCMeta
 
-    _CONNECTOR_TYPE_TO_CLASS_MAPPINGS = {Connector.SDK: SDKConnector,
-                                         Connector.REST: RESTConnector
-                                         }
+    _CONNECTOR_TYPE_TO_CLASS_MAPPINGS = {Connector.REST: RESTConnector}
 
     def __init__(self, name):
         '''
@@ -121,6 +116,8 @@ class Sumo(Logging):
     def accesskey(self, value):
         self._accesskey=value
 
+    def uri_base(self):
+        return 'https://'
 
     def register_start_listener(self, listener):
         '''
@@ -208,7 +205,7 @@ class Sumo(Logging):
         conn = self.create_connector(contype, *args, **kwargs)
         if set_as_default:
             self._default_connector = conn
-        conn.login()
+        #conn.login()
         return conn
 
     def set_default_connector(self, contype, username):
@@ -216,7 +213,7 @@ class Sumo(Logging):
         Sets the default connector to an already existing connector
 
         @param contype: type of connector, defined in L{Connector} class
-        @param username: splunk username used by connector
+        @param username: sumo username used by connector
         @type username: string
         '''
         self._default_connector = self.connector(contype, username)
@@ -227,7 +224,7 @@ class Sumo(Logging):
         default connector
 
         @param contype: type of connector, defined in L{Connector} class
-        @param username: splunk username used by connector
+        @param username: sumo username used by connector
         @type username: string
         '''
         if self.default_connector == self.connector(contype, username):
@@ -241,18 +238,18 @@ class Sumo(Logging):
         Returns the connector id
 
         @param contype: type of connector, defined in L{Connector} class
-        @param username: splunk username used by connector
+        @param username: sumo username used by connector
         @type username: string
         '''
         connector_id = '{contype}:{user}'.format(contype=contype, user=user)
         return connector_id
 
-    def set_credentials_to_use(self, username='admin', password='changeme'):
+    def set_credentials_to_use(self, username='Administrator', password='testing123@'):
         '''
         This method just initializes/updates self._username to username specified & self._password to password specified
-        @param username: splunk username that gets assigned to _username property of splunk class
-        @param password: splunk password for the above username.
-        Note: This method won't create/update the actual credentials on the splunk running instance. 
+        @param username: sumo username that gets assigned to _username property of sumo class
+        @param password: sumo password for the above username.
+        Note: This method won't create/update the actual credentials on the sumo deployment. 
         It is asssumed that credentials specified here are already valid credentials.
         '''
         self._username = username
@@ -305,26 +302,6 @@ class Sumo(Logging):
         from testingframework.manager.jobs import Jobs
         return Jobs(self.connector(contype, username))
 
-    # Abstract methods
-    @abstractmethod
-    def is_running(self):
-        '''
-        Checks if Splunk is up and running.
-
-        When this returns False a lot of commands will probably fail.
-
-        @rtype: bool
-        @return: True if Splunk is started, False otherwise.
-        '''
-        pass
-
-    @abstractmethod
-    def get_host_os(self):
-        '''
-        Returns the os of the host.
-        '''
-        pass
-
 
 def _validate_start_listener(listener):
     '''
@@ -349,24 +326,6 @@ def _variable_is_a_function(variable):
     @rtype: bool
     '''
     return hasattr(variable, '__call__')
-
-
-class InvalidStartListener(AttributeError):
-    '''
-    Exception for when the start listener does not implement the
-    splunk_has_started method
-    '''
-
-    def __init__(self, message=None):
-        message = message or 'Start listeners must be callable'
-        super(InvalidStartListener, self).__init__(message)
-
-
-class CouldNotRestartSplunk(CommandExecutionFailure):
-    '''
-    Raised when a Splunk restart fails.
-    '''
-    pass
 
 
 class InvalidConnector(KeyError):

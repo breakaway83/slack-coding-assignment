@@ -43,7 +43,6 @@ class AWSSumo(Sumo):
         '''
         super(AWSSumo, self).__init__(name)
         self._validate_aws_url(sumo_url)
-
         self._sumo_url = sumo_url
 
     @classmethod
