@@ -43,7 +43,7 @@ def pytest_addoption(parser):
                      default="Administrator")
     splk_group.addoption('--password', dest='password',
                      help='Sumo password to access Sumo deployment',
-                     default="Testing123@")
+                     default=""
 
 @pytest.fixture(scope="class")
 def remote_sumo(request):
@@ -59,7 +59,7 @@ def remote_sumo(request):
                'weimin+nite-qademoorg2@sumologic.com'
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'ru9oP6R6NCUguVFcMM2LlD6RxhHr3n8@'
+               ''
     remote_sumo = AWSSumo(remote_url)
     return remote_sumo
 
@@ -76,7 +76,7 @@ def handle_remotetest(request, remote_sumo):
                'Administrator'
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
+               ''
     remote_sumo.create_logged_in_connector(contype=Connector.REST,
                                            username=username,
                                            password=password)

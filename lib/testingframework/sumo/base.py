@@ -29,7 +29,7 @@ class Sumo(Logging):
     @ivar _logger: The logger this instance uses.
     '''
     _username = 'Administrator'
-    _password = 'Testing123@'
+    _password = ''
     _accessid = ''
     _accesskey = ''
 
