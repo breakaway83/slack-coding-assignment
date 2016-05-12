@@ -13,15 +13,15 @@ from xml.dom.minidom import parseString
 
 class RESTConnector(Connector):
     """
-    This represents workaround to access REST thru HTTP client library httplib2
+    This represents to access REST thru HTTP client library httplib2
 
     Associated with each object is a C{http} object from the httplib which in
-    turn contains connection info, namespace and auth.
+    turn contains connection info and auth.
 
     When a connector is logged in a sessionkey is generated and will be kept
     until the point that you logout or the server is restarted.
 
-    When Sumo is restarted the connector I{tries} to login again
+    When Sumo is restarted or upgraded the connector I{tries} to login again
 
     @ivar _service: The underlying service, aka the http request object
     @cvar HEADERS: The default headers to pass with http request. this will
@@ -51,7 +51,7 @@ class RESTConnector(Connector):
         if username is None:
             username = 'Administrator'
         if password is None:
-            password = 'testing123@'
+            password = ''
         super(RESTConnector, self).__init__(sumo, username, password)
         self.uri_base = sumo.uri_base()
         self._username = username
@@ -66,7 +66,6 @@ class RESTConnector(Connector):
                                       self._disable_ssl_certificate)
         self._service.follow_redirects = self._follow_redirects
         self._service.add_credentials(self._username, self._password)
-        #self.login()
         sumo.register_start_listener(self)
 
     def make_request(self, method, uri, body=None, urlparam=None,
@@ -135,108 +134,6 @@ class RESTConnector(Connector):
         """
 
         return json.loads(str(content))
-
-    @property
-    def _service_arguments(self):
-        """
-        The arguments to pass to the Service (httplib in this case).
-        If makes sure that they have default values if nothing is specified.
-
-        @rtype: dict
-        @return: default values for the httplib service
-
-        """
-        return {
-            'username': self._username,
-            'password': self._password,
-            'uri_base': self.uri_base,
-        }
-
-    def _recreate_service(self):
-        """
-        Clones the current service with the same values.
-
-        It then logs the service in if the old one was logged in.
-        """
-        service = self._clone_existing_service()
-        self._service = service
-        self._username = self._service_arguments['username']
-        self._password = self._service_arguments['password']
-        self.uri_base = self._service_arguments['uri_base']
-        if not self.is_logged_in():
-            self.login()
-
-    def login(self):
-        """
-        Logs the connector in.
-
-        Just hits the auth endpoint and retreives and sets the sessionkey
-        """
-
-        body = urllib.urlencode({'username': self._username,
-                                 'password': self._password})
-        url = "%s%s" % (self.uri_base, '/services/auth/login')
-        response, content = self._service.request(url, 'POST', body=body)
-        root = et.fromstring(str(content))
-        self.sessionkey = root[0].text
-        if not self._service.credentials:
-            self._service.add_credentials(self._username, self._password)
-
-    def _clone_existing_service(self):
-        """
-        clones the existing service
-
-        @return: The newly created service (httplib) http object
-        @rtype: http object
-        """
-        http = httplib2.Http(
-            timeout=self._timeout, disable_ssl_certificate_validation=
-            self._disable_ssl_certificate)
-        http.follow_redirects = False
-        http.add_credentials(self._service_arguments['username'],
-                             self._service_arguments['password'])
-        return  http
-
-    def logout(self):
-        """
-        Logs the connector out
-
-        This just unsets the sessionkey.
-
-        """
-        if 'Authorization' in self.HEADERS:
-            self.HEADERS.pop('Authorization')
-        self.sessionkey = None
-        self._service.clear_credentials()
-
-    def is_logged_in(self):
-        """
-        Checks if the connector is logged in.
-
-        This checks if the sessionkey is set
-        @return: True if the connector is logged in
-        @rtype: bool
-
-        """
-        if self._is_sessionkey_expired():
-            return False
-        return self.sessionkey is not None or self._service.credentials
-
-    def _is_sessionkey_expired(self):
-        """
-        checks if the session key is an expired one.
-        hits an endpoint with that key and check response status is 401
-        """
-        url = "%s%s" % (self.uri_base, '/services/data/outputs/tcp/default') # Use Sumo endpoint
-        self._service.clear_credentials()
-        self.update_headers('Authorization',
-                            'Splunk %s' % self.sessionkey)
-        response, content = self._service.request(url, 'GET',
-                                                  headers=self.HEADERS)
-        if response['status'] == '401':
-            return True
-        else:
-            return False
 
     def update_headers(self, key=None, value=None):
         """

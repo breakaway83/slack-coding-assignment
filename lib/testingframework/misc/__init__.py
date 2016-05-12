@@ -1,5 +1,5 @@
 '''
-@author: Nicklas Ansman-Giertz
-@contact: U{ngiertz@splunk.com<mailto:ngiertz@splunk.com>}
-@since: 2011-11-23
+@author: Weimin Ma
+@contact: U{weimin@sumologic.com<mailto:weimin@sumologic.com>}
+@since: 2016-05-11
 '''

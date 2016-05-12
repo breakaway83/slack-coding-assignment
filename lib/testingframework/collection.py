@@ -1,7 +1,7 @@
 '''
-@author: Nicklas Ansman-Giertz
-@contact: U{ngiertz@splunk.com<mailto:ngiertz@splunk.com>}
-@since: 2011-11-23
+@author: Weimin Ma
+@contact: U{weimin@sumologic.com<mailto:weimin@sumoligic.com>}
+@since: 2016-05-10
 '''
 
 from abc import ABCMeta, abstractmethod
@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 class Collection(object):
     '''
     A Collection metaclass that specifies what functions a collection in the
-    Helmut framework must implement.
+    testingframework must implement.
     '''
     __metaclass__ = ABCMeta
 

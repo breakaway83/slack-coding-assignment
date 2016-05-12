@@ -2,7 +2,6 @@ import logging
 import time
 import os
 import platform
-
 import pytest
 
 from testingframework.sumo.aws import AWSSumo
@@ -38,14 +37,17 @@ def pytest_addoption(parser):
     we can use it later.
     '''
     splk_group = parser.getgroup("Sumo Options")
+    splk_group.addoption('--remote_url', dest='remote_url',
+                     help='Sumo deployment url',
+                     default="")
     splk_group.addoption('--username', dest='username',
                      help='Sumo username to access Sumo deployment',
                      default="Administrator")
     splk_group.addoption('--password', dest='password',
                      help='Sumo password to access Sumo deployment',
-                     default=""
+                     default="")
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def remote_sumo(request):
     '''
     Sumo Deployment
@@ -53,13 +55,13 @@ def remote_sumo(request):
     LOGGER.info("Inside remote sumo deployment fixture")
     remote_url = request.config.option.remote_url \
                if hasattr(request.config.option, 'remote_url') else \
-               'https://nite-api.sumologic.net/api/v1/' 
+               ''
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'weimin+nite-qademoorg2@sumologic.com'
+               'Administrator'
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               ''
+               'Testing123@'
     remote_sumo = AWSSumo(remote_url)
     return remote_sumo
 
@@ -76,7 +78,8 @@ def handle_remotetest(request, remote_sumo):
                'Administrator'
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               ''
+               'Testing123@'
+
     remote_sumo.create_logged_in_connector(contype=Connector.REST,
                                            username=username,
                                            password=password)

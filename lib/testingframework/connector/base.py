@@ -21,8 +21,6 @@ class Connector(Logging):
                             explicitly specified.
     @cvar DEFAULT_PASSWORD: The password that will be used if a password is not
                             explicitly specified.
-    @cvar DEFAULT_NAMESPACE: The namespace that will be used if a namespace is
-                             not explicitly specified.
     @ivar _sumo: The Sumo deployment associated with this connector.
     @ivar _username: The username that this connector uses.
     @ivar _password: The password that this connector uses.
@@ -31,11 +29,11 @@ class Connector(Logging):
 
     __metaclass__ = ABCMeta
     DEFAULT_USERNAME = 'Administrator'
-    DEFAULT_PASSWORD = 'testing123@'
+    DEFAULT_PASSWORD = ''
     #DEFAULT_NAMESPACE = 'nobody:system'
 
     # types of connectors
-    (SDK, REST, CLI) = range(0, 3)
+    (REST, SDK) = range(0, 2)
 
     def __init__(self, sumo, username=None, password=None):
         '''

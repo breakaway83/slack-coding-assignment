@@ -148,7 +148,7 @@ class Sumo(Logging):
     def create_connector(self, contype=None, *args, **kwargs):
         '''
         Creates and returns a new connector of the type specified or
-        SDK connector if none specified
+        REST connector if none specified
 
         This connector will not be logged in, for that see
         L{create_logged_in_connector}
@@ -157,11 +157,11 @@ class Sumo(Logging):
         initialization method
 
         @param contype: Type of connector to create, defined in Connector class,
-           defaults to Connector.SDK
+           defaults to Connector.REST
 
         @return: The newly created connector
         '''
-        contype = contype or Connector.SDK
+        contype = contype or Connector.REST
 
         if contype not in self._CONNECTOR_TYPE_TO_CLASS_MAPPINGS:
             raise UnsupportedConnectorError
@@ -197,15 +197,14 @@ class Sumo(Logging):
                                as the default connector too. True as default.
         @type bool
         @param contype: type of connector to create, available types defined in
-            L{Connector} class. Connector.SDK as default
+            L{Connector} class. Connector.REST as default
 
         @return: The newly created, logged in, connector
         '''
-        contype = contype or Connector.SDK
+        contype = contype or Connector.REST
         conn = self.create_connector(contype, *args, **kwargs)
         if set_as_default:
             self._default_connector = conn
-        #conn.login()
         return conn
 
     def set_default_connector(self, contype, username):

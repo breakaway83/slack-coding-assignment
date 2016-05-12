@@ -83,7 +83,7 @@ set_environment_variables
 refresh_test_libraries
 
 # setting the python path for test libs
-export PYTHONPATH=$TEST_LIB
+export PYTHONPATH=$TEST_LIB:$TEST_LIB/httplib2-0.9.2/python2
 echo Run the following command:
 echo export PYTHONPATH=$PYTHONPATH
 echo ""
