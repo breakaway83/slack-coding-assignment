@@ -1,13 +1,5 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8 :
-"""
-Meta
-====
-    $Id: //splunk/current/new_test/lib/helmut/util/rip.py#16 $
-    $DateTime: 2014/04/16 00:07:49 $
-    $Author: glouie $
-    $Change: 204900 $
-"""
 
 import urllib
 

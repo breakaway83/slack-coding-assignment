@@ -59,5 +59,5 @@ class YMLParser:
         host_list = dict['hosts']
         hosts = Hosts()
         for host in host_list:
-            hosts.add_host(Host(host_name = host, ssh_user = dict['ssh_user'], ssh_password = dict['ssh_password'], splunk_home = dict['splunk_home'], ssh_domain = dict['ssh_domain']))
+            hosts.add_host(Host(host_name = host, ssh_user = dict['ssh_user'], ssh_password = dict['ssh_password'], sumo_home = dict['sumo_home'], ssh_domain = dict['ssh_domain']))
         return hosts
