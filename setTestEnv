@@ -88,7 +88,7 @@ echo Run the following command:
 echo export PYTHONPATH=$PYTHONPATH
 echo ""
 
-# alias cmd to use pytest., we rely on the python on the PATH, ideally it should be SPLUNK_HOME/bin/python
+# alias cmd to use pytest., we rely on the python on the PATH
 alias pytest='python $TEST_DIR/bin/pytest/pytest.py'
 echo Run the following command:
 echo alias pytest=\'python $TEST_DIR/bin/pytest/pytest.py\'

@@ -74,7 +74,7 @@ class Logging(object):
     @property
     def logger(self):
         '''
-        The logger of this Splunk object.
+        The logger of this Sumo object.
 
         @return: The associated logger.
         '''

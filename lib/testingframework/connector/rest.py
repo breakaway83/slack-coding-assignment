@@ -104,7 +104,7 @@ class RESTConnector(Connector):
         if use_sessionkey:
             self._service.clear_credentials()
             self.update_headers('Authorization',
-                                'Splunk %s' % self.sessionkey)
+                                'Sumo %s' % self.sessionkey)
         else:
             if not self._service.credentials:
                 self._service.add_credentials(self._username, self._password)
