@@ -1,11 +1,3 @@
-"""
-Provides means to extract/create an archive without caring about the type.
-
-@author: Nicklas Ansman-Giertz
-@contact: U{ngiertz@splunk.com<mailto:ngiertz@splunk.com>}
-@since: 2011-11-23
-"""
-
 import tarfile
 import zipfile
 import gzip
