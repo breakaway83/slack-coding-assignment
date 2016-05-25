@@ -1,1 +1,2 @@
-__all__ = ['connector', 'exceptions', 'manager', 'misc', 'util']
+__all__ = ['connector', 'exceptions', 'manager', 'misc', 'sumo',
+           'collector_package', 'collector_platform', 'util']
