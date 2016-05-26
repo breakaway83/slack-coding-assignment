@@ -136,7 +136,7 @@ class AWSSumo(Sumo):
         @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector
         @type upgrade: bool
         '''
-        msg = 'Installing Splunk from archive={0}'.format(archive_path)
+        msg = 'Installing Collector from archive={0}'.format(archive_path)
         self.logger.info(msg)
 
         if(uninstall_existing==True):
@@ -152,7 +152,7 @@ class AWSSumo(Sumo):
             self.logger.info(msg)
             self._file_utils.force_remove_directory(directory)
 
-        self.logger.info('Splunk has been installed.')
+        self.logger.info('Collector has been installed.')
 
 
 class InvalidSumoURL(RuntimeError):
