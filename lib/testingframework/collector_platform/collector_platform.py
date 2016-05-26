@@ -30,7 +30,7 @@ class CollectorPlatform(object):
     """
     __meta__ = ABCMeta
 
-    _DEFAULT_SUFFIX = '{os}/{arch}'
+    _DEFAULT_SUFFIX = '{os}{arch}'
 
     def __init__(self, os, architecture):
         """
