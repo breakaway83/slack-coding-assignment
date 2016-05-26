@@ -11,7 +11,10 @@ Module used for downloading Sumo collector.
 @since: 2016-05-22
 '''
 from abc import ABCMeta, abstractmethod
+import os
 import urllib
+import urllib2
+import types
 
 from testingframework import collector_platform
 from testingframework.collector_platform.collector_platform import CollectorPlatform
@@ -55,6 +58,7 @@ class CollectorPackage(Logging):
         @raise InvalidPackageType: If the type is not valid.
         '''
         self._platform = None
+        self._installer_name = None
         self._set_platform(platform)
 
         Logging.__init__(self)
@@ -67,6 +71,21 @@ class CollectorPackage(Logging):
         @rtype: L{CollectorPlatform}
         '''
         return self._platform
+
+    @property
+    def installer_name(self):
+        '''
+        Gets the filename of the installer downloaded from Sumo
+        @rtype: str
+        '''
+        self._installer_name
+
+    @installer_name.setter
+    def installer_name(self, installer_name):
+        '''
+        Sets the collector's installer name
+        '''
+        self._installer_name = installer_name
 
     @platform.setter
     def platform(self, platform):
@@ -157,7 +176,7 @@ class CollectorPackage(Logging):
         '''
         return self.download_to(None)
 
-    def download_to(self, target):
+    def download_to(self, target=None):
         '''
         Downloads the package to the specified file.
 
@@ -170,8 +189,17 @@ class CollectorPackage(Logging):
         @rtype: str
         '''
         url = self.get_url()
+        request = HeadRequest(url)
+        response = urllib2.urlopen(request)
+        response_headers = response.info()
+        filename = response_headers.dict['content-disposition']
+        filename = filename.split(';')[1].split('=')[1]
+        self.installer_name = filename
         self.logger.info('Fetching package from %s' % url)
-        return urllib.urlretrieve(url, target)[0]
+        if target is None:
+            return urllib.urlretrieve(url, filename)[0]
+        else:
+            return urllib.urlretrieve(url, os.path.join(target, filename))[0]
 
     @abstractmethod
     def get_url(self):
@@ -183,6 +211,10 @@ class CollectorPackage(Logging):
         @raise BuildNotFound: If the build doesn't exist.
         '''
         pass
+
+class HeadRequest(urllib2.Request):
+    def get_method(self):
+        return "HEAD"
 
 
 class BuildNotFound(RuntimeError):

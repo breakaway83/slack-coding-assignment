@@ -84,12 +84,20 @@ refresh_test_libraries
 
 # setting the python path for test libs
 export PYTHONPATH=$TEST_LIB:$TEST_LIB/httplib2-0.9.2/python2
-echo Run the following command:
-echo export PYTHONPATH=$PYTHONPATH
-echo ""
+#echo Run the following command:
+#echo export PYTHONPATH=$PYTHONPATH
+#echo ""
 
 # alias cmd to use pytest., we rely on the python on the PATH
 alias pytest='python $TEST_DIR/bin/pytest/pytest.py'
-echo Run the following command:
-echo alias pytest=\'python $TEST_DIR/bin/pytest/pytest.py\'
-echo ""
+#echo Run the following command:
+#echo alias pytest=\'python $TEST_DIR/bin/pytest/pytest.py\'
+#echo ""
+
+# set test artifacts directory and create if not existing
+if [ "$TEST_ARTIFACTS" = "" ]; then
+    export TEST_ARTIFACTS=$TEST_DIR/test_artifacts
+fi
+if [ ! -d "$TEST_ARTIFACTS" ]; then
+    mkdir -p $TEST_ARTIFACTS
+fi
