@@ -301,7 +301,7 @@ class LocalCollector(Collector):
                               "._stop_collector_if_needed()")
             self.stop()
 
-    def install_from_archive(self, archive_path, uninstall_existing=True):
+    def install_from_archive(self, uninstall_existing=False):
         '''
         Installs this collector instance from an archive.
 
@@ -312,7 +312,7 @@ class LocalCollector(Collector):
         @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector_home
         @type upgrade: bool
         '''
-        msg = 'Installing Collector from archive={0}'.format(archive_path)
+        msg = 'Installing Collector from archive={0}'.format(self.installer_path)
         self.logger.info(msg)
         pkg = NightlyPackage(self._deployment)
         archive = pkg.download_to(self.installer_path)
@@ -326,10 +326,10 @@ class LocalCollector(Collector):
             cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
             installer_bin = os.path.join(self.installer_path, pkg._installer_name)
             if self._name is None:
-                cmd_binary = cmd_binary % (self.installer_bin , self._username, self._password, self._url, \
+                cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.archive_dir, 'SumoCollector'), socket.gethostname())
             else:
-                cmd_binary = cmd_binary % (self.installer_bin , self._username, self._password, self._url, \
+                cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.archive_dir, 'SumoCollector'), self._name)
             p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
