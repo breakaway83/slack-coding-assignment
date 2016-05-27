@@ -327,10 +327,10 @@ class LocalCollector(Collector):
             installer_bin = os.path.join(self.installer_path, pkg._installer_name)
             if self._name is None:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.archive_dir, 'SumoCollector'), socket.gethostname())
+                             os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
             else:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.archive_dir, 'SumoCollector'), self._name)
+                             os.path.join(self.installer_path, 'SumoCollector'), self._name)
             p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
         finally:
