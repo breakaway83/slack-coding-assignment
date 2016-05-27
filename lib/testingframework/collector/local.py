@@ -301,7 +301,7 @@ class LocalCollector(Collector):
                               "._stop_collector_if_needed()")
             self.stop()
 
-    def install_from_archive(self, uninstall_existing=True):
+    def install_from_archive(self, uninstall_existing=False):
         '''
         Installs this collector instance from an archive.
 
