@@ -8,6 +8,7 @@ import time
 import sys
 import re
 import logging
+import socket
 
 import testingframework.util.archiver as archiver
 from .base import Collector
