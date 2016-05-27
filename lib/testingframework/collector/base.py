@@ -87,6 +87,13 @@ class Collector(Logging):
         '''
         return self._url
 
+    def set_deployment(self, deployment):
+        '''
+        This method just initializes/updates self._deployment to deployment specified
+        @param deployment: Collector deployment that gets assigned to _deploymentproperty of collector class
+        '''
+        self._deployment = deployment
+
     def set_credentials_to_use(self, username='admin', password='changeme'):
         '''
         This method just initializes/updates self._username to username specified & self._password to password specified
