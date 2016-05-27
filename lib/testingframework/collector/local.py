@@ -285,12 +285,18 @@ class LocalCollector(Collector):
  
     def uninstall(self):
         '''
-        Uninstalls collector by first stopping the instance if it's running and
-        then removing the collector_home directory.
+        Uninstalls collector by running uninstall command
         '''
         self.logger.info('Uninstalling Collector...')
-        self._stop_collector_if_needed()
-        self._file_utils.force_remove_directory(self.collector_home)
+        try:
+            # Standalone Installer
+            cmd_binary = '%s%suninstall' % (os.path.join(self.installer_path, 'SumoCollector'), os.sep)
+            cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
+            p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            stddata = p.communicate()
+        finally:
+            pass
+
         self.logger.info('Collector has been uninstalled.')
 
     def _stop_collector_if_needed(self):
