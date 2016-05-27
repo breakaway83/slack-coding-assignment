@@ -312,7 +312,7 @@ class LocalCollector(Collector):
         @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector_home
         @type upgrade: bool
         '''
-        msg = 'Installing Collector from archive={0}'.format(self.)
+        msg = 'Installing Collector from archive={0}'.format(archive_path)
         self.logger.info(msg)
         pkg = NightlyPackage(self._deployment)
         archive = pkg.download_to(self.installer_path)
