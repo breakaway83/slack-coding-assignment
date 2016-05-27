@@ -61,6 +61,15 @@ class Collector(Logging):
         return self._installer_path
 
     @property
+    def deployment(self):
+        '''
+        The installer path of this instance.
+
+        @rtype: str
+        '''
+        return self._deployment
+
+    @property
     def collector_home(self):
         '''
         The collector home path of this instance.

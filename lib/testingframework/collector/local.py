@@ -32,7 +32,7 @@ class LocalCollector(Collector):
     '''
     COMMON_FLAGS = '-q'
 
-    def __init__(self, installer_path, collector_home, name=None):
+    def __init__(self, installer_path, collector_home='', name=None):
         '''
         Creates a new LocalCollector instance.
 
@@ -312,25 +312,29 @@ class LocalCollector(Collector):
         @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector_home
         @type upgrade: bool
         '''
-        msg = 'Installing Collector from archive={0}'.format(archive_path)
+        msg = 'Installing Collector from archive={0}'.format(self.)
         self.logger.info(msg)
+        pkg = NightlyPackage(self._deployment)
+        archive = pkg.download_to(self.installer_path)
 
         if(uninstall_existing==True):
             self.uninstall()
 
         try:
             # Standalone Installer
-            cmd_binary = '%s -Vsumo.email=%s -Vsumo.password=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
+            cmd_binary = 'sh %s -Vsumo.accessid=%s -Vsumo.accesskey=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
             cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
+            installer_bin = os.path.join(self.installer_path, pkg._installer_name)
             if self._name is None:
-                cmd_binary = cmd_binary % (self.username, self.password, self.url, self.get_host_os())
+                cmd_binary = cmd_binary % (self.installer_bin , self._username, self._password, self._url, \
+                             os.path.join(self.archive_dir, 'SumoCollector'), socket.gethostname())
             else:
-                cmd_binary = cmd_binary % (self.username, self.password, self.url, self._name)
-
+                cmd_binary = cmd_binary % (self.installer_bin , self._username, self._password, self._url, \
+                             os.path.join(self.archive_dir, 'SumoCollector'), self._name)
+            p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            stddata = p.communicate()
         finally:
-            msg = 'Removing extracted files from {0}'.format(directory)
-            self.logger.info(msg)
-            self._file_utils.force_remove_directory(archive_path)
+            pass
 
         self.logger.info('Collector has been installed.')
 
