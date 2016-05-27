@@ -314,7 +314,7 @@ class LocalCollector(Collector):
         '''
         msg = 'Installing Collector from archive={0}'.format(self.installer_path)
         self.logger.info(msg)
-        pkg = NightlyPackage(self._deployment)
+        pkg = NightlyPackage(deployment=self._deployment)
         archive = pkg.download_to(self.installer_path)
 
         if(uninstall_existing==True):
