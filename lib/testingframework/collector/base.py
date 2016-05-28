@@ -15,12 +15,11 @@ class Collector(Logging):
     __metaclass__ = ABCMeta
 
 
-    def __init__(self, installer_path, collector_home, url=None):
+    def __init__(self, installer_path, url=None):
         '''
         Creates a new collector instance.
         '''
         self._installer_path = installer_path
-        self._collector_home = collector_home
         self._url = url
 
         Logging.__init__(self)
@@ -70,15 +69,6 @@ class Collector(Logging):
         return self._deployment
 
     @property
-    def collector_home(self):
-        '''
-        The collector home path of this instance.
-
-        @rtype: str
-        '''
-        return self._collector_home
-
-    @property
     def url(self):
         '''
         The url of a Sumo instance.
@@ -90,7 +80,7 @@ class Collector(Logging):
     def set_deployment(self, deployment):
         '''
         This method just initializes/updates self._deployment to deployment specified
-        @param deployment: Sumo deployment that gets assigned to _deploymentproperty of collector class
+        @param deployment: Collector deployment that gets assigned to _deployment property of collector class
         '''
         self._deployment = deployment
 
