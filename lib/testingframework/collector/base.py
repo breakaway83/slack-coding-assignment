@@ -15,12 +15,11 @@ class Collector(Logging):
     __metaclass__ = ABCMeta
 
 
-    def __init__(self, installer_path, collector_home, url=None):
+    def __init__(self, installer_path, url=None):
         '''
         Creates a new collector instance.
         '''
         self._installer_path = installer_path
-        self._collector_home = collector_home
         self._url = url
 
         Logging.__init__(self)
@@ -68,15 +67,6 @@ class Collector(Logging):
         @rtype: str
         '''
         return self._deployment
-
-    @property
-    def collector_home(self):
-        '''
-        The collector home path of this instance.
-
-        @rtype: str
-        '''
-        return self._collector_home
 
     @property
     def url(self):
