@@ -12,6 +12,7 @@ import tempfile
 import shlex
 import urllib2
 import platform
+import socket
 
 import testingframework.util.archiver as archiver
 
@@ -21,7 +22,6 @@ from .local import LocalCollector
 from testingframework.util import fileutils
 from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector_package.collector_release import ReleasedPackage
-from testingframework.collector.base import CouldNotRestartCollector
 from testingframework.exceptions.command_execution import CommandExecutionFailure
 
 
@@ -47,9 +47,11 @@ class WindowsLocalCollector(LocalCollector):
         @type installer_path: str
         @raise InvalidCollectorHome: If installer_path is not a string.
         '''
-        super(WindowsLocalSplunk, self).__init__(installer_path)
+        super(WindowsLocalCollector, self).__init__(installer_path)
         WindowsLocalCollector._instance_count +=1
         self._instance_id = WindowsLocalCollector._instance_count
+        self._pkg_installer_name = None
+        self._cmd_binary = None
 
     @property
     def collector_binary(self):
@@ -59,7 +61,7 @@ class WindowsLocalCollector(LocalCollector):
         @rtype: str
         '''
         binary='collector'
-        binary=binary+'.exe'
+        binary=binary+'.bat'
         return self.get_binary_path(binary)
 
 
@@ -92,12 +94,12 @@ class WindowsLocalCollector(LocalCollector):
 
     def is_running(self):
         '''
-        Checks to see if Splunk is started.
+        Checks to see if collector is started.
 
-        It does this by calling C{status} on the Splunk binary.
+        It does this by calling C{status} on the collector binary.
 
         @rtype: bool
-        @return: True if Splunk is started.
+        @return: True if collector is started.
         '''
         is_running = False
         self.logger.info('Checking if Collector is running...')
@@ -149,14 +151,17 @@ class WindowsLocalCollector(LocalCollector):
             # Standalone Installer
             cmd_binary = '%s -Vsumo.accessid=%s -Vsumo.accesskey=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
             cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
-            installer_bin = os.path.join(self.installer_path, pkg._installer_name)
+            self._pkg_installer_name = pkg._installer_name 
+            installer_bin = os.path.join(self.installer_path, self._pkg_installer_name)
+            os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
             if self._name is None:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
             else:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.installer_path, 'SumoCollector'), self._name)
-            p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            self._cmd_binary = cmd_binary
+            p = subprocess.Popen(shlex.split(cmd_binary, posix=False), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
         finally:
             pass
