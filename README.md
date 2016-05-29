@@ -1,3 +1,4 @@
 Please copy contrib/ to project ROOT
 
-source ./setTestEnv
+Linux: source ./setTestEnv
+Windows: setTestEnv.cmd
