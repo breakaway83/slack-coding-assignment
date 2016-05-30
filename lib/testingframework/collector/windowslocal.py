@@ -13,12 +13,14 @@ import shlex
 import urllib2
 import platform
 import socket
+import time
 
 import testingframework.util.archiver as archiver
 
 from testingframework.collector_platform.collector_platform import CollectorPlatform
 from .base import Collector
 from .local import LocalCollector
+from .local import CouldNotStopCollector
 from testingframework.util import fileutils
 from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector_package.collector_release import ReleasedPackage
@@ -102,6 +104,7 @@ class WindowsLocalCollector(LocalCollector):
         @return: True if collector is started.
         '''
         is_running = False
+        process_string = 'collector.bat'
         self.logger.info('Checking if Collector is running...')
         if self.is_installed():
             self.logger.info('Checking if '+ process_string + ' is Running on windows...')
@@ -121,12 +124,131 @@ class WindowsLocalCollector(LocalCollector):
             # Standalone Installer
             cmd_binary = '%s%suninstall.exe' % (os.path.join(self.installer_path, 'SumoCollector'), os.sep)
             cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
-            p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            p = subprocess.Popen(shlex.split(cmd_binary, posix=False), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
         finally:
             pass
 
         self.logger.info('Collector has been uninstalled.')
+
+    def stop(self):
+        '''
+        Stops Windows Collector.
+
+        @return: The exit code of the command.
+        @rtype: int
+        @raise CouldNotStopCollector: If Collector is still running after stopping it.
+        '''
+        self.logger.info('Stopping Windows Collector...')
+        binary = 'stopCollectorService.bat'
+        cmd = ''
+        (code, stdout, stderr) = self.execute_with_binary(binary, cmd)
+        self.logger.info('Collector has been stopped')
+        self._verify_collector_is_not_running(cmd, code, stdout, stderr)
+        return code
+
+    def is_running(self):
+        '''
+        Checks to see if Windows Collector is running.
+
+        @rtype: bool
+        @return: True if Collector is started.
+        '''
+        is_running = False
+        self.logger.info('Checking if Windows Collector is running...')
+        cmd = 'sc query sumo-collector'
+        proc = subprocess.Popen(shlex.split(cmd, posix=False),
+                                stdin=subprocess.PIPE,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+        (stdout, _) = proc.communicate()
+        is_running = 'RUNNING' in stdout
+        msg = 'Collector {0} running'.format('is' if is_running else 'is not')
+        self.logger.info(msg)
+        return is_running
+
+    def start(self):
+        '''
+        Starts Windows collector.
+
+        @return: The exit code of the command.
+        @rtype: int
+        @raise CouldNotStartCollector: If collector is not running after starting it.
+        '''
+        if not self.is_running():
+            self.logger.info('Starting collector...')
+            binary = 'startCollectorService.bat'
+            cmd = ''
+            (code, stdout, stderr) = self.execute_with_binary(binary, cmd)
+            counter = 0            
+            while not self.is_running() and counter < 6:
+                time.sleep(10)
+                counter = counter + 1
+            self._verify_collector_is_running(binary, code, stdout, stderr)
+            self.logger.info("Collector is successfully started.")
+        else:
+            self.logger.info('Collector is already running')
+
+    def _verify_collector_is_not_running(self, command, code, stdout, stderr):
+        '''
+        Checks if Collector is running raising an exception if it is.
+
+        @param command: The command that was run
+        @type command: str
+        @param code: The exit code.
+        @type code: int
+        @param stdout: The stdout that was printed by the command.
+        @type stdout: str
+        @param stderr: The stderr that was printed by the command.
+        @type stderr: str
+        @raise CouldNotStopCollector: If Collector is running.
+        '''
+        self.logger.info('Verifying that Collector is not running...')
+        if self.is_running():
+            self.logger.info('Collector is running')
+            raise CouldNotStopCollector(command, code, stdout, stderr)
+        self.logger.info('Collector is not running')
+
+    def _verify_collector_is_running(self, command, code, stdout, stderr):
+        '''
+        Checks if Collector is stopped raising an exception if it is.
+
+        @param command: The command that was run
+        @type command: str
+        @param code: The exit code.
+        @type code: int
+        @param stdout: The stdout that was printed by the command.
+        @type stdout: str
+        @param stderr: The stderr that was printed by the command.
+        @type stderr: str
+        @raise CouldNotStopCollector: If Collector is running.
+        '''
+        self.logger.info('Verifying that Collector is running...')
+        if not self.is_running():
+            self.logger.info('Collector is running')
+            raise CouldNotStartCollector(command, code, stdout, stderr)
+        self.logger.info('Collector is not running')
+
+    def stop(self):
+        '''
+        Stops Windows Collector.
+
+        @return: The exit code of the command.
+        @rtype: int
+        @raise CouldNotStopCollector: If Collector is still running after stopping it.
+        '''
+        self.logger.info('Stopping Collector...')
+        binary = 'stopCollectorService.bat'
+        cmd = ''
+        (code, stdout, stderr) = self.execute_with_binary(binary, cmd)
+        self.logger.info('Collector has been stopped')
+        self._verify_collector_is_not_running(binary, code, stdout, stderr)
+        counter = 0
+        while self.is_running() and counter < 6:
+            time.sleep(10)
+            counter = counter + 1
+        self._verify_collector_is_not_running(binary, code, stdout, stderr)
+        self.logger.info("Collector is successfully stopped.")
 
     def install_from_archive(self, uninstall_existing=False):
         '''
@@ -136,7 +258,8 @@ class WindowsLocalCollector(LocalCollector):
 
         @param archive_path: The path to the archive
         @type archive_path: str
-        @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector_home
+        @param upgrade: Boolean flag that indicates if the archive install \
+                        should/shouldn't override the existing collector_home
         @type upgrade: bool
         '''
         msg = 'Installing Collector from archive={0}'.format(self.installer_path)

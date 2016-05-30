@@ -103,7 +103,7 @@ class LocalCollector(Collector):
         @rtype: str
         '''
         if self._is_windows:
-           return self.get_binary_path('collector.exe')
+           return self.get_binary_path('collector.bat')
         return self.get_binary_path('collector')
 
     def get_binary_path(self, binary):
