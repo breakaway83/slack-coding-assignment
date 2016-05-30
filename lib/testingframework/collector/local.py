@@ -39,7 +39,7 @@ class LocalCollector(Collector):
 
         @param installer_path: The local that collector is/will be installed.
         @type installer_path: str
-        @raise InvalidCollectorHome: If collector_home is not a string.
+        @raise InvalidCollectorHome: If installer_path is not a string.
         '''
         super(LocalCollector, self).__init__(installer_path)
         self._validate_collector_home(installer_path)
@@ -103,7 +103,7 @@ class LocalCollector(Collector):
         @rtype: str
         '''
         if self._is_windows:
-           return self.get_binary_path('collector.exe')
+           return self.get_binary_path('collector.bat')
         return self.get_binary_path('collector')
 
     def get_binary_path(self, binary):

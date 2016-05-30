@@ -37,8 +37,11 @@ class WindowsPlatform(CollectorPlatform):
 
     @property
     def package_suffix(self):
-        architecture = '32' if self.architecture == arch.X86 else '64'
-        return 'windows-{arch}.zip'.format(arch=architecture)
+        if self.architecture == arch.X86:
+            return 'windows'
+        else:
+            return 'win64'
+
     @property
     def release_directory_name(self):
         return 'windows'
