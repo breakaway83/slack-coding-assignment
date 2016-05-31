@@ -55,7 +55,7 @@ goto:eof
 REM make sure bash environment
 :set_environment_variables
   SET TEST_DIR=%CD%
-  SET TEST_LIB=%TEST_DIR%\lib
+  SET TEST_LIB=%TEST_DIR%\lib;%TEST_DIR%\lib\pytest;%TEST_DIR%\lib\httplib2-0.9.2\python2
   echo "TEST_DIR=%TEST_DIR%"
   goto:eof
 
