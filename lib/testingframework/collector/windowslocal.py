@@ -14,6 +14,7 @@ import urllib2
 import platform
 import socket
 import time
+import fileinput
 
 import testingframework.util.archiver as archiver
 
@@ -279,13 +280,39 @@ class WindowsLocalCollector(LocalCollector):
             os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
             if self._name is None:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
+                             os.path.join(self.installer_path, 'SumoCollector'), "%s%s" % (socket.gethostname(), self._instance_count))
             else:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.installer_path, 'SumoCollector'), self._name)
             self._cmd_binary = cmd_binary
             p = subprocess.Popen(shlex.split(cmd_binary, posix=False), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
+            if self._instance_count > 1:
+                wrapper_path = os.path.join(self.installer_path, 'SumoCollector', 'config', 'wrapper.conf')
+                for line in fileinput.input(wrapper_path, inplace=True):
+                    if 'sumo-collector' in line:
+                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
+                        print line
+                    else:
+                        print line
+                fileinput.close()
+                start_service = os.path.join(self.installer_path, 'SumoCollector', 'startCollectorService.bat')
+                for line in fileinput.input(start_service, inplace=True):
+                    if 'sumo-collector' in line:
+                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
+                        print line
+                    else:
+                        print line
+                fileinput.close()
+                stop_service = os.path.join(self.installer_path, 'SumoCollector', 'stopCollectorService.bat')
+                for line in fileinput.input(stop_service, inplace=True):
+                    if 'sumo-collector' in line:
+                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
+                        print line
+                    else:
+                        print line
+                fileinput.close()
+                self.start()
         finally:
             pass
 
