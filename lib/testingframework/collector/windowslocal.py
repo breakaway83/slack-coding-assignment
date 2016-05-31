@@ -14,6 +14,7 @@ import urllib2
 import platform
 import socket
 import time
+import fileinput
 
 import testingframework.util.archiver as archiver
 
@@ -21,6 +22,7 @@ from testingframework.collector_platform.collector_platform import CollectorPlat
 from .base import Collector
 from .local import LocalCollector
 from .local import CouldNotStopCollector
+from .local import CouldNotStartCollector
 from testingframework.util import fileutils
 from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector_package.collector_release import ReleasedPackage
@@ -279,7 +281,7 @@ class WindowsLocalCollector(LocalCollector):
             os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
             if self._name is None:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
+                             os.path.join(self.installer_path, 'SumoCollector'), "%s%s" % (socket.gethostname(), self._instance_count))
             else:
                 cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                              os.path.join(self.installer_path, 'SumoCollector'), self._name)
