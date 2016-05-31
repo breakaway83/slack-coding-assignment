@@ -22,6 +22,7 @@ from testingframework.collector_platform.collector_platform import CollectorPlat
 from .base import Collector
 from .local import LocalCollector
 from .local import CouldNotStopCollector
+from .local import CouldNotStartCollector
 from testingframework.util import fileutils
 from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector_package.collector_release import ReleasedPackage
@@ -287,32 +288,6 @@ class WindowsLocalCollector(LocalCollector):
             self._cmd_binary = cmd_binary
             p = subprocess.Popen(shlex.split(cmd_binary, posix=False), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
-            if self._instance_count > 1:
-                wrapper_path = os.path.join(self.installer_path, 'SumoCollector', 'config', 'wrapper.conf')
-                for line in fileinput.input(wrapper_path, inplace=True):
-                    if 'sumo-collector' in line:
-                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
-                        print line
-                    else:
-                        print line
-                fileinput.close()
-                start_service = os.path.join(self.installer_path, 'SumoCollector', 'startCollectorService.bat')
-                for line in fileinput.input(start_service, inplace=True):
-                    if 'sumo-collector' in line:
-                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
-                        print line
-                    else:
-                        print line
-                fileinput.close()
-                stop_service = os.path.join(self.installer_path, 'SumoCollector', 'stopCollectorService.bat')
-                for line in fileinput.input(stop_service, inplace=True):
-                    if 'sumo-collector' in line:
-                        line = line.rstrip().replace('sumo-collector', 'sumo-collector2')
-                        print line
-                    else:
-                        print line
-                fileinput.close()
-                self.start()
         finally:
             pass
 
