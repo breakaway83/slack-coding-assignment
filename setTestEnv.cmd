@@ -30,7 +30,7 @@ IF %ERRORLEVEL% NEQ 1 (
 )
 
 REM setting the python path for test libs
-set PYTHONPATH=%TEST_LIB%;%TEST_LIB%\pytest\plugin;%TEST_LIB%\httplib2-0.9.2\python2
+set PYTHONPATH=%TEST_LIB%;%TEST_LIB%\pytest\plugin;%TEST_LIB%\httplib2-0.9.2\python2;%TEST_LIB%\pytest
 
 doskey pytest=python %TEST_DIR%\bin\pytest\pytest.py $*
 
@@ -55,7 +55,7 @@ goto:eof
 REM make sure bash environment
 :set_environment_variables
   SET TEST_DIR=%CD%
-  SET TEST_LIB=%TEST_DIR%\lib;%TEST_DIR%\lib\pytest;%TEST_DIR%\lib\httplib2-0.9.2\python2
+  SET TEST_LIB=%TEST_DIR%\lib
   echo "TEST_DIR=%TEST_DIR%"
   goto:eof
 
