@@ -15,6 +15,7 @@ import os
 import urllib
 import urllib2
 import types
+import pytest
 
 from testingframework import collector_platform
 from testingframework.collector_platform.collector_platform import CollectorPlatform
