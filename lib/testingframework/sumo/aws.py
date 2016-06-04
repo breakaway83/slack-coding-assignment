@@ -125,36 +125,6 @@ class AWSSumo(Sumo):
                 resultSameSince = sys.maxint
             lastPolledAt = now
 
-    def install_collector_from_archive(self, archive_path, uninstall_existing=True):
-        '''
-        Installs this collector instance from an archive.
-
-        The archive must be extractable by the L{archiver}
-
-        @param archive_path: The path to the archive
-        @type archive_path: str
-        @param upgrade: Boolean flag that indicates if the archive install should/shouldn't override the existing collector
-        @type upgrade: bool
-        '''
-        msg = 'Installing Collector from archive={0}'.format(archive_path)
-        self.logger.info(msg)
-
-        if(uninstall_existing==True):
-            self.uninstall()
-
-        collector_dir = os.path.join(archive_path, 'SumoCollector')
-        try:
-            # ./SumoCollector_linux_amd64_20_1-2684.sh -Vsumo.accesskey=ksjaWPMnQw4uuw2OYOpDpL7Ua7HM40A3i3ds6KWljHNs6DKmOoLPKUeoWv0dzIDg 
-            # -Vsumo.accessid=su1y380CfPZUxG -Vcollector.url=https://stag-events.sumologic.net -dir ~/SumoCollector -Vcollector.name=52.91.186.149 -q
-
-        finally:
-            msg = 'Removing extracted files from {0}'.format(directory)
-            self.logger.info(msg)
-            self._file_utils.force_remove_directory(directory)
-
-        self.logger.info('Collector has been installed.')
-
-
 class InvalidSumoURL(RuntimeError):
     '''
     Raised when the given sumo_url is invalid
