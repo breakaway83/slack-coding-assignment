@@ -62,7 +62,7 @@ class TestCollector(object):
             try:
                 verifier.verify_true(len(cont_json['messages']) > 0)
                 break
-            except KeyError, e:
+            except (KeyError, AssertionError), e:
                 if aTry < tries - 1:
                     time.sleep(time_to_wait)
                 else:

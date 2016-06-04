@@ -132,7 +132,16 @@ def connector_remotesumo(request, remote_sumo):
         try:
             LOGGER.info("Teardown: removing remote sumo connectors")
             collector_api = "%s%s" % (request.config.option.sumo_api_url, 'collectors')
-            resp, cont = restconn.make_request('DELETE', collector_api)
+            collector_api = collector_api.replace('https://', '')
+            resp, cont = restconn.make_request("GET", collector_api)
+            cont_json = json.loads(cont)
+            for eachCollector in cont_json['collectors']:
+                if eachCollector['name'] == socket.gethostname() and \
+                   eachCollector['alive']:
+                    collector_id = eachCollector['id']
+                    break
+            individual_collector = "%s/%s" % (collector_api, eachCollector['id'])
+            resp, cont = restconn.make_request('DELETE', individual_collector)
             verifier.verify_true(resp.status == 200)
             remote_sumo.remove_connector(Connector.REST, username)
         except Exception, err:
