@@ -1,0 +1,16 @@
+{
+    "source": {
+        "name": "weimin_graphite",
+        "description": "weimin_graphite",
+        "category": "weimin_graphite",
+        "sourceHostName": "",
+        "sourceType": "Graphite",
+        "contentType":"Graphite",
+        "encoding": "UTF-8",
+        "manualPrefixRegexp": "",
+        "multilineProcessingEnabled": true,
+        "port": 2018,
+        "protocol":"TCP",
+        "useAutolineMatching": true
+    }
+}

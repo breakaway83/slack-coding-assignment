@@ -7,6 +7,7 @@ import os
 import shutil
 import shlex
 import socket
+import json
 import subprocess
 from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector.osxlocal import LocalCollector
@@ -142,7 +143,7 @@ def local_collector(request):
     request.addfinalizer(fin)
     return collector
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def connector_remotesumo(request, remote_sumo):
     '''
     This is setup & teardown. Creates restconnector,
@@ -181,4 +182,43 @@ def connector_remotesumo(request, remote_sumo):
         except Exception, err:
             LOGGER.warn("Failed to tear down rest connectors %s" % err)
     request.addfinalizer(fin)
+    return restconn
+
+@pytest.fixture(scope="session")
+def connector_remotesumo_graphite_source(request, connector_remotesumo):
+    '''
+    Collector with Graphite source configured
+    '''
+    restconn = connector_remotesumo
+    restconn.update_headers('accept', 'application/json')
+    restconn.update_headers('content-type', 'application/json')
+    # Check whether the source has been created
+    collector_api = "%s%s" % (restconn.config.option.sumo_api_url, 'collectors')
+    collector_api = collector_api.replace('https://', '')
+    resp, cont = restconn.make_request("GET", collector_api)
+    cont_json = json.loads(cont)
+    source_path = os.path.join(os.environ['TEST_DIR'], 'data', 'collector', 'json', 'source_graphite.json')
+    source_fd = open(source_path, 'r')
+    content = source_fd.read()
+    source_fd.close()
+    content = content.replace('\n', ' ')
+    content_dict = json.loads(content)
+
+    for eachCollector in cont_json['collectors']:
+        if socket.gethostname() in eachCollector['name'] and \
+           eachCollector['alive']:
+            collector_id = eachCollector['id']
+            break
+
+    source_api = "%s/%s/sources" % (collector_api, collector_id)
+    resp, cont = restconn.make_request("GET", source_api)
+    cont_dic = json.loads(cont)
+    for eachSource in cont_dic['sources']:
+        if eachSource['name'] == content_dict["source"]["name"]:
+            source_id = eachSource["id"]
+            source_uri = "%s/%s" % (source_api, source_id)
+            resp, cont = restconn.make_request("DELETE", source_uri)
+            break
+
+    resp, cont = restconn.make_request("POST", source_api, content)
     return restconn
