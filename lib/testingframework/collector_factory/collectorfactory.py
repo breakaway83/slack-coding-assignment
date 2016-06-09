@@ -16,7 +16,7 @@ from testingframework.collector.windowslocal import WindowsLocalCollector
 class CollectorFactory: 
      
     @classmethod
-    def getCollector(self, splunk_home, url=None):     
+    def getCollector(self, install_home, url=None):
         '''
         This method returns Collector Instance corresponding to underlying architecture
         '''

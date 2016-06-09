@@ -131,7 +131,7 @@ def local_collector(request):
     os.mkdir(archive_dir)
 
     if platform.system() == "Windows":
-        from testingfrmework.collector_factory.collectorfactory import CollectorFactory
+        from testingframework.collector_factory.collectorfactory import CollectorFactory
         collector = CollectorFactory.getCollector(archive_dir)
     else:
         collector = LocalCollector(archive_dir)
