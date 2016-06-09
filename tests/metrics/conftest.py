@@ -129,7 +129,13 @@ def local_collector(request):
     if os.path.isdir(archive_dir):
         shutil.rmtree(archive_dir)
     os.mkdir(archive_dir)
-    collector = LocalCollector(archive_dir)
+
+    if platform.system() == "Windows":
+        from testingfrmework.collector_factory.collectorfactory import CollectorFactory
+        collector = CollectorFactory.getCollector(archive_dir)
+    else:
+        collector = LocalCollector(archive_dir)
+
     collector.set_deployment(deployment)
     collector.set_credentials_to_use(username, password)
     collector.set_url(collector_url)
