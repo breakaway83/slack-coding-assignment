@@ -185,6 +185,8 @@ class TestHostMetrics(object):
         host_metrics_body = host_metrics_body % hostname
         resp, cont = restconn.make_request("POST", SOURCE_URI, host_metrics_body)
 
+        pytest.set_trace()
+
         # Let us get the "uptime" values first
         args = shlex.split('uptime')
         current_milli_time = lambda: int(round(time.time() * 1000))
