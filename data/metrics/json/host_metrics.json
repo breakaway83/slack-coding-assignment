@@ -1,0 +1,21 @@
+{
+    "source": {
+        "name": "weimin_host_metrics",
+        "description": "weimin_host_metrics",
+        "category": "weimin_host_metrics",
+        "automaticDateParsing": false,
+        "multilineProcessingEnabled": false,
+        "useAutolineMatching": false,
+        "forceTimeZone": false,
+        "timeZone": "GMT",
+        "filters": [],
+        "cutoffTimestamp": 0,
+        "encoding": "UTF-8",
+        "paused": false,
+        "sourceType": "SystemStats",
+        "contentType": "HostMetrics",
+        "interval": 15000,
+        "hostName": "%s",
+        "alive": true
+    }
+}

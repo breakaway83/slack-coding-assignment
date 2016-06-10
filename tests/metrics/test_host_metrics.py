@@ -176,13 +176,12 @@ class TestHostMetrics(object):
         SOURCE_URI = SOURCE_URI.replace('https://', '')
         # Create the host metrics source
         hostname = socket.gethostname()
-        host_metrics_body = '{  "source":{    "name":"weimin_host_metrics",    "description":"weimin_host_metrics", \
-                            "category":"weimin_host_metrics",    "automaticDateParsing":false,  \
-                            "multilineProcessingEnabled":false,    "useAutolineMatching":false,    "forceTimeZone":false, \
-                            "timeZone":"GMT",    "filters":[],    "cutoffTimestamp":0,    "encoding":"UTF-8",  \
-                            "paused":false,    "sourceType":"SystemStats",    "interval":15000,    "hostName":"%s", \
-                            "alive":true  }}'
-        host_metrics_body = host_metrics_body % hostname
+        metrics_path = source_path = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'host_metrics.json')
+        metrics_fd = open(metrics_path, 'r')
+        content = metrics_fd.read()
+        metrics_fd.close()
+        content = content.replace('\n', ' ')
+        host_metrics_body = content % hostname
         resp, cont = restconn.make_request("POST", SOURCE_URI, host_metrics_body)
 
         pytest.set_trace()
