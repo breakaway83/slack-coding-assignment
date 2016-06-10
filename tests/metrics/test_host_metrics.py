@@ -184,6 +184,19 @@ class TestHostMetrics(object):
         host_metrics_body = content % hostname
         resp, cont = restconn.make_request("POST", SOURCE_URI, host_metrics_body)
 
+        METRICS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'metrics/meta/catalog/query')
+        METRICS_URI = METRICS_URI.replace('https://', '')
+        query = '{"query":"_source=weimin_host_metrics", "offset":0, "limit":100}'
+        resp, cont = restconn.make_request("POST", METRICS_URI, query)
+        cont_dic = json.loads(cont)
+        hash_tags = {}
+        for eachTag in cont_dic['results']:
+            if eachTag['name'] in hash_tags.keys():
+                hash_tags[eachTag['name']] += 1
+            else:
+                hash_tags[eachTag['name']] = 1
+        metrics_tags = hash_tags.keys()
+
         pytest.set_trace()
 
         # Let us get the "uptime" values first
