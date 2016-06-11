@@ -13,7 +13,8 @@ import socket
 from conftest import params
 
 LOGGER = logging.getLogger('TestHostMetrics')
-verifier = VerifierBase()
+tries = 10
+time_to_wait = 10
 
 class TestHostMetrics(object):
     def test_cpu_load_average(self, remote_sumo, handle_remotetest):
@@ -137,8 +138,6 @@ class TestHostMetrics(object):
         METRICS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'metrics/results/')
         METRICS_URI = METRICS_URI.replace('https://', '')
 
-        tries = 10
-        time_to_wait = 10
         for aTry in range(tries):
             resp, cont = restconn.make_request("POST", METRICS_URI, query)
             result_json = json.loads(cont)
@@ -176,7 +175,7 @@ class TestHostMetrics(object):
         SOURCE_URI = SOURCE_URI.replace('https://', '')
         # Create the host metrics source
         hostname = socket.gethostname()
-        metrics_path = source_path = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'host_metrics.json')
+        metrics_path = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'host_metrics.json')
         metrics_fd = open(metrics_path, 'r')
         content = metrics_fd.read()
         metrics_fd.close()
@@ -190,51 +189,35 @@ class TestHostMetrics(object):
         resp, cont = restconn.make_request("POST", METRICS_URI, query)
         cont_dic = json.loads(cont)
         hash_tags = {}
-        for eachTag in cont_dic['results']:
-            if eachTag['name'] in hash_tags.keys():
-                hash_tags[eachTag['name']] += 1
-            else:
-                hash_tags[eachTag['name']] = 1
-        metrics_tags = hash_tags.keys()
-
-        pytest.set_trace()
-
-        # Let us get the "uptime" values first
-        args = shlex.split('uptime')
-        current_milli_time = lambda: int(round(time.time() * 1000))
-        startTime = current_milli_time()
-        p = subprocess.Popen(args, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
-        stddata = p.communicate()
-        try:
-            # This is on Linux
-            cpu_load_avg_5_uptime = float(stddata[0].split('load average:')[1].split(',')[1].strip())
-        except IndexError, e:
-            # This is on OSX
-            cpu_load_avg_5_uptime = float(stddata[0].split('load averages:')[1].split()[1].strip())
-        # Get the cpu load avg from Sumo Metrics
-        time.sleep(15)
-        endTime = current_milli_time()
-        query = '{"query":[{"query":"_source=weimin_host_metrics  metric=CPU_LoadAvg_5min","rowId":"A"}],"startTime":%s,\
-                "endTime":%s, "requestedDataPoints": 600, "maxDataPoints": 800}'
-        query = query % (startTime, endTime)
-        METRICS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'metrics/results/')
-        METRICS_URI = METRICS_URI.replace('https://', '')
-
-        tries = 10
-        time_to_wait = 10
-        for aTry in range(tries):
-            resp, cont = restconn.make_request("POST", METRICS_URI, query)
-            result_json = json.loads(cont)
+	for itr in range(tries):
             try:
-                cpu_load_avg_5_sumo = result_json['response'][0]['results'][0]['datapoints']['value'][0]
+                for eachTag in cont_dic['results']:
+                    if eachTag['name'] in hash_tags.keys():
+                        hash_tags[eachTag['name']] += 1
+                    else:
+                        hash_tags[eachTag['name']] = 1
                 break
-            except (IndexError, KeyError), e:
-                if aTry < tries - 1:
+            except KeyError, e:
+                if itr < tries - 1:
                     time.sleep(time_to_wait)
                 else:
                     raise e
-
-        logger = logging.getLogger()
+        metrics_tags = hash_tags.keys()
+        # Get host metrics list from file
+        metrics_list = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'text', 'metrics_list')
+        ml_fd = open(metrics_list, 'r')
+        content = ml_fd.read()
+        ml_fd.close()
+        content_list = content.split('\n')
+        for item in metrics_tags:
+            if len(item) < 1:
+                metrics_tags.remove(item)
+        for item in content_list:
+            if len(item) < 1:
+                content_list.remove(item)
+        metrics_tags.sort()
+        content_list.sort()
         verifier = VerifierBase()
-        verifier.verify_true(abs(cpu_load_avg_5_uptime - cpu_load_avg_5_sumo) / cpu_load_avg_5_uptime < 0.15, \
-                             "uptime %s is very different than Sumo %s" % (cpu_load_avg_5_uptime, cpu_load_avg_5_sumo))
+        verifier.verify_true(len(metrics_tags) == len(content_list))
+        for each in range(metrics_tags):
+            verifier.verify_true(str(metrics_tags[each]) == str(content_list[each]))
