@@ -219,5 +219,5 @@ class TestHostMetrics(object):
         content_list.sort()
         verifier = VerifierBase()
         verifier.verify_true(len(metrics_tags) == len(content_list))
-        for each in range(metrics_tags):
+        for each in range(len(metrics_tags)):
             verifier.verify_true(str(metrics_tags[each]) == str(content_list[each]))
