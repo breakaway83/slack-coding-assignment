@@ -86,7 +86,7 @@ class TestCollectorInstall(object):
         resp, cont = restconn.make_request("GET", collector_uri)
         cont_json = json.loads(cont)
         collector_id = None
-	for eachCollector in cont_json['collectors']:
+        for eachCollector in cont_json['collectors']:
             if socket.gethostname() in str(eachCollector['name']):
                 if eachCollector['alive']:
                     collector_id = eachCollector['id']

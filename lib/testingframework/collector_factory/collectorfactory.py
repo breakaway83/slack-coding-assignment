@@ -23,7 +23,7 @@ class CollectorFactory:
         if(platform.system().upper()=='WINDOWS'):
             return WindowsLocalCollector(install_home, url)
         else: #posix
-            return LocalCollector(install__home, url)
+            return LocalCollector(install_home, url)
 
     @classmethod
     def getCollectorClassName(self):
