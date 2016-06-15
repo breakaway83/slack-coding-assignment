@@ -10,7 +10,8 @@ import shlex
 import socket
 import subprocess
 from testingframework.collector_package.collector_nightly import NightlyPackage
-from testingframework.collector.osxlocal import LocalCollector
+#from testingframework.collector.osxlocal import LocalCollector
+from testingframework.collector_factory.collectorfactory import CollectorFactory
 from testingframework.sumo.aws import AWSSumo
 from testingframework.connector.base import Connector
 
@@ -93,7 +94,8 @@ def local_collector(request):
     archive_dir = os.path.join(os.environ['TEST_ARTIFACTS'], 'archives')
     shutil.rmtree(archive_dir)
     os.mkdir(archive_dir)
-    collector = LocalCollector(archive_dir)
+    #collector = LocalCollector(archive_dir)
+    collector = CollectorFactory.getCollector(archive_dir)
     collector.set_deployment(deployment)
     collector.set_credentials_to_use(username, password)
     collector.set_url(collector_url)

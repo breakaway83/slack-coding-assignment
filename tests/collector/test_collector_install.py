@@ -10,13 +10,16 @@ import json
 import subprocess
 import shlex
 import socket
+import random
 from conftest import params
 from datetime import datetime, timedelta
 
 LOGGER = logging.getLogger('TestCollectorInstall')
 verifier = VerifierBase()
+tries = 20
+time_to_wait = 30
 
-class TestCollector(object):
+class TestCollectorInstall(object):
     def test_local_file_source(self, remote_sumo, local_collector, connector_remotesumo):
         restconn = connector_remotesumo
         restconn.update_headers('accept', 'application/json')
@@ -73,3 +76,49 @@ class TestCollector(object):
         individual_source = "%s/%s" % (source_api, cont_json['sources'][0]['id'])
         resp, cont = restconn.make_request('DELETE', individual_source)
         verifier.verify_true(resp.status == 200)
+
+    def test_collector_upgrade(self, remote_sumo, local_collector, connector_remotesumo):
+        restconn = connector_remotesumo
+        restconn.update_headers('accept', 'application/json')
+        restconn.update_headers('content-type', 'application/json')
+        collector_uri = "%s%s" % (restconn.config.option.sumo_api_url, 'collectors')
+        collector_uri = collector_uri.replace('https://', '')
+        resp, cont = restconn.make_request("GET", collector_uri)
+        cont_json = json.loads(cont)
+        collector_id = None
+	for eachCollector in cont_json['collectors']:
+            if socket.gethostname() in str(eachCollector['name']):
+                if eachCollector['alive']:
+                    collector_id = eachCollector['id']
+                    break
+        verifier.verify_false(collector_id is None)
+
+        collector_builds = "%s%s" % (restconn.config.option.sumo_api_url, 'collectors/upgrades/targets')
+        collector_builds = collector_builds.replace('https://', '')
+        resp, cont = restconn.make_request("GET", collector_builds)
+        cont_json = json.loads(cont)
+        other_versions = []
+        for each in cont_json['targets']:
+            if each['latest'] == True:
+                current_version = str(each['version'])
+            else:
+                other_versions.append(each)
+        upgrade_version = str(other_versions[random.randint(0, len(other_versions))]['version'])
+
+        collector_upgrade_api = "%s%s" % (restconn.config.option.sumo_api_url, 'collectors/upgrades')
+        collector_upgrade_api = collector_upgrade_api.replace('https://', '')
+        rest_params = "{\"collectorId\":%s,\"toVersion\":\"%s\"}" % (collector_id, upgrade_version)
+        resp, cont = restconn.make_request("POST", collector_upgrade_api, rest_params)
+        verifier.verify_false(resp.status == 400)
+        cont_json = json.loads(cont)
+
+        status_uri = "%s%s" % (restconn.config.option.sumo_api_url, "collectors/upgrades/%s" % cont_json['id'])
+        status_uri = status_uri.replace('https://', '')
+        upgrade_done = False
+        for aTry in range(tries):
+            resp, cont = restconn.make_request("GET", status_uri)
+            cont_json = json.loads(cont)
+            if cont_json['upgrade']['status'] == 2:
+                upgrade_done = True
+                break
+        verifier.verify_true(upgrade_done)
