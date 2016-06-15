@@ -11,6 +11,7 @@ import subprocess
 import shlex
 import socket
 import random
+import sys
 from conftest import params
 from datetime import datetime, timedelta
 
@@ -107,9 +108,20 @@ class TestCollectorInstall(object):
 
         collector_upgrade_api = "%s%s" % (restconn.config.option.sumo_api_url, 'collectors/upgrades')
         collector_upgrade_api = collector_upgrade_api.replace('https://', '')
-        rest_params = "{\"collectorId\":%s,\"toVersion\":\"%s\"}" % (collector_id, upgrade_version)
-        resp, cont = restconn.make_request("POST", collector_upgrade_api, rest_params)
-        verifier.verify_false(resp.status == 400)
+        if sys.platform == 'win32':
+            rest_params = "{\"collectorId\":%s,\"toVersion\":\"%s\"}" % (collector_id, upgrade_version)
+        else:
+            rest_params = '{"collectorId":%s,"toVersion":"%s"}' % (collector_id, upgrade_version)
+        for aTry in range(tries):
+            try:
+                resp, cont = restconn.make_request("POST", collector_upgrade_api, rest_params)
+                verifier.verify_false(resp.status == 400)
+                break
+            except AssertionError, e:
+                if aTry < tries - 1:
+                    time.sleep(time_to_wait)
+                else:
+                    raise e
         cont_json = json.loads(cont)
 
         status_uri = "%s%s" % (restconn.config.option.sumo_api_url, "collectors/upgrades/%s" % cont_json['id'])
