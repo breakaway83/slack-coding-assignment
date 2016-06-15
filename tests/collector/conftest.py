@@ -92,7 +92,8 @@ def local_collector(request):
                if hasattr(request.config.option, 'password') else \
                'Testing123@'
     archive_dir = os.path.join(os.environ['TEST_ARTIFACTS'], 'archives')
-    shutil.rmtree(archive_dir)
+    if os.path.exists(archive_dir):
+        shutil.rmtree(archive_dir)
     os.mkdir(archive_dir)
     #collector = LocalCollector(archive_dir)
     collector = CollectorFactory.getCollector(archive_dir)
