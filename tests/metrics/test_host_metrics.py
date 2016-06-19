@@ -228,6 +228,8 @@ class TestHostMetrics(object):
         restconn.update_headers('content-type', 'application/json')
         LOGIN_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'authentication/loginwithcredentials')
         LOGIN_URI = LOGIN_URI.replace('https://', '')
+        params = '{"email":"%s","password":"%s"}'
+        params = params % (restconn.config.option.username, restconn.config.option.password)
         resp, cont = restconn.make_request('POST', LOGIN_URI, params)
         cookie = resp['set-cookie']
         cont_json = json.loads(cont)
