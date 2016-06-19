@@ -10,6 +10,7 @@ from testingframework.exceptions import UnsupportedConnectorError
 from testingframework.log import Logging
 from testingframework.connector.base import Connector
 from testingframework.connector.rest import RESTConnector
+from testingframework.connector.service import ServiceConnector
 
 
 class Sumo(Logging):
@@ -35,7 +36,7 @@ class Sumo(Logging):
 
     __metaclass__ = ABCMeta
 
-    _CONNECTOR_TYPE_TO_CLASS_MAPPINGS = {Connector.REST: RESTConnector}
+    _CONNECTOR_TYPE_TO_CLASS_MAPPINGS = {Connector.REST: RESTConnector, Connector.SERVICEREST: ServiceConnector}
 
     def __init__(self, name):
         '''

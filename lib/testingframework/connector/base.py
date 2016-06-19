@@ -33,7 +33,7 @@ class Connector(Logging):
     #DEFAULT_NAMESPACE = 'nobody:system'
 
     # types of connectors
-    (REST, SDK) = range(0, 2)
+    (REST, SERVICEREST, SDK) = range(0, 3)
 
     def __init__(self, sumo, username=None, password=None):
         '''

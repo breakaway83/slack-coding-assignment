@@ -107,6 +107,31 @@ def handle_remotetest(request, remote_sumo):
     request.addfinalizer(fin)
     return restconn
 
+@pytest.fixture(scope="class")
+def servicerest_conn(request, remote_sumo):
+    LOGGER.info("Inside servicerest_conn.")
+    username = request.config.option.username \
+               if hasattr(request.config.option, 'username') else \
+               'Administrator'
+    password = request.config.option.password \
+               if hasattr(request.config.option, 'password') else \
+               'Testing123@'
+
+    remote_sumo.create_logged_in_connector(contype=Connector.SERVICEREST,
+                                                   username=username,
+                                                   password=password)
+    servicerestconn = remote_sumo.connector(Connector.SERVICEREST, username)
+    servicerestconn.config = request.config
+
+    def fin():
+        try:
+            LOGGER.info("Teardown: removing remote sumo connectors")
+            remote_sumo.remove_connector(Connector.SERVICEREST, username)
+        except Exception, err:
+            LOGGER.warn("Failed to tear down rest connectors %s" % err)
+    request.addfinalizer(fin)
+    return servicerestconn
+
 @pytest.fixture(scope="session")
 def local_collector(request):
     '''

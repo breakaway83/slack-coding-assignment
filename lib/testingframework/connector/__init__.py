@@ -6,7 +6,8 @@ Module for handling generic connections with a Sumo deployment.
 @since: 2016-04-23
 '''
 
-__all__ = ['rest']
+__all__ = ['rest', 'service']
 
 from .rest import RESTConnector
+from .service import ServiceConnector
 
