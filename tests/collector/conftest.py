@@ -39,28 +39,6 @@ def params(funcarglist):
     return wrapper
 
 
-def pytest_addoption(parser):
-    '''
-    This is a pytest hook to add options from the command line so that
-    we can use it later.
-    '''
-    splk_group = parser.getgroup("Sumo Options")
-    splk_group.addoption('--sumo_api_url', dest='sumo_api_url',
-                     help='Sumo deployment API url',
-                     default="")
-    splk_group.addoption('--collector_url', dest='collector_url',
-                     help='Collector registration url',
-                     default="")
-    splk_group.addoption('--deployment', dest='deployment',
-                     help='Name of Sumo deployment',
-                     default="")
-    splk_group.addoption('--username', dest='username',
-                     help='Sumo username to access Sumo/Collector',
-                     default="Administrator")
-    splk_group.addoption('--password', dest='password',
-                     help='Sumo password to access Sumo/Collector',
-                     default="")
-
 @pytest.fixture(scope="session")
 def remote_sumo(request):
     '''

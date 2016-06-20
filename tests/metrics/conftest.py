@@ -13,6 +13,7 @@ from testingframework.collector_package.collector_nightly import NightlyPackage
 from testingframework.collector.osxlocal import LocalCollector
 from testingframework.sumo.aws import AWSSumo
 from testingframework.connector.base import Connector
+from testingframework.collector_factory.collectorfactory import CollectorFactory
 
 LOGGER = logging.getLogger()
 
@@ -36,28 +37,6 @@ def params(funcarglist):
         return function
     return wrapper
 
-
-def pytest_addoption(parser):
-    '''
-    This is a pytest hook to add options from the command line so that
-    we can use it later.
-    '''
-    splk_group = parser.getgroup("Sumo Options")
-    splk_group.addoption('--sumo_api_url', dest='sumo_api_url',
-                     help='Sumo deployment API url',
-                     default="")
-    splk_group.addoption('--collector_url', dest='collector_url',
-                     help='Collector registration url',
-                     default="")
-    splk_group.addoption('--deployment', dest='deployment',
-                     help='Name of Sumo deployment',
-                     default="")
-    splk_group.addoption('--username', dest='username',
-                     help='Sumo username to access Sumo deployment',
-                     default="Administrator")
-    splk_group.addoption('--password', dest='password',
-                     help='Sumo password to access Sumo deployment',
-                     default="")
 
 @pytest.fixture(scope="session")
 def remote_sumo(request):
@@ -150,19 +129,20 @@ def local_collector(request):
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
                'Testing123@'
+    accessid = request.config.option.accessid \
+               if hasattr(request.config.option, 'accessid') else \
+               '123'
+    accesskey = request.config.option.accesskey \
+               if hasattr(request.config.option, 'accesskey') else \
+               '456'
     archive_dir = os.path.join(os.environ['TEST_ARTIFACTS'], 'archives')
     if os.path.isdir(archive_dir):
         shutil.rmtree(archive_dir)
     os.mkdir(archive_dir)
 
-    if platform.system() == "Windows":
-        from testingframework.collector_factory.collectorfactory import CollectorFactory
-        collector = CollectorFactory.getCollector(archive_dir)
-    else:
-        collector = LocalCollector(archive_dir)
-
+    collector = CollectorFactory.getCollector(archive_dir)
     collector.set_deployment(deployment)
-    collector.set_credentials_to_use(username, password)
+    collector.set_credentials_to_use(username, password, accessid, accesskey)
     collector.set_url(collector_url)
     collector.install_from_archive()
 

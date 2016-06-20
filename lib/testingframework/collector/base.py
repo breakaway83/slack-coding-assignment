@@ -84,14 +84,18 @@ class Collector(Logging):
         '''
         self._deployment = deployment
 
-    def set_credentials_to_use(self, username='admin', password='changeme'):
+    def set_credentials_to_use(self, username=None, password=None, accessid=None, accesskey=None):
         '''
-        This method just initializes/updates self._username to username specified & self._password to password specified
+        This method just initializes/updates self._username, self._password, self._accessid and self._accesskey
         @param username: Sumo username that gets assigned to _username property of collector class
         @param password: Sumo password for the above username.
+        @param accessid: Sumo accessid that gets assigned to _accessid property of collector class
+        @param password: Sumo accesskey for the above accessid.
         '''
         self._username = username
         self._password = password
+        self._accessid = accessid
+        self._accesskey = accesskey
 
     def set_url(self, url):
         self._url = url

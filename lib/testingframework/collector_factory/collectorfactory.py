@@ -7,27 +7,33 @@ This class acts as a factory for LocalCollector and returns corresponding to the
 '''
 import os
 import platform
+import pytest
 
 from testingframework.log import Logging
 from testingframework.collector.base import Collector
 from testingframework.collector.local import LocalCollector
 from testingframework.collector.windowslocal import WindowsLocalCollector
+from testingframework.collector.osxlocal import OSXLocalCollector
 
 class CollectorFactory: 
      
     @classmethod
-    def getCollector(self, install_home, url=None):
+    def getCollector(self, install_home):
         '''
         This method returns Collector Instance corresponding to underlying architecture
         '''
         if(platform.system().upper()=='WINDOWS'):
-            return WindowsLocalCollector(install_home, url)
+            return WindowsLocalCollector(install_home)
+        elif(platform.system().upper()=="DARWIN"):
+            return OSXLocalCollector(install_home)
         else: #posix
-            return LocalCollector(install_home, url)
+            return LocalCollector(install_home)
 
     @classmethod
     def getCollectorClassName(self):
         if(platform.system().upper()=='WINDOWS'):
             return WindowsLocalCollector
+        elif(platform.system().upper()=="DARWIN"):
+            return OSXLocalCollector
         else: #posix
             return LocalCollector

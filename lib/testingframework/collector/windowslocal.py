@@ -274,17 +274,30 @@ class WindowsLocalCollector(LocalCollector):
 
         try:
             # Standalone Installer
-            cmd_binary = '%s -Vsumo.accessid=%s -Vsumo.accesskey=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
-            cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
-            self._pkg_installer_name = pkg._installer_name 
-            installer_bin = os.path.join(self.installer_path, self._pkg_installer_name)
-            os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
-            if self._name is None:
-                cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.installer_path, 'SumoCollector'), "%s%s" % (socket.gethostname(), self._instance_count))
+            if(self._username is not None and self._passwprd is not None):
+                cmd_binary = '%s -Vsumo.email=%s -Vsumo.password=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
+                cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
+                self._pkg_installer_name = pkg._installer_name 
+                installer_bin = os.path.join(self.installer_path, self._pkg_installer_name)
+                os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
+                if self._name is None:
+                    cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
+                                 os.path.join(self.installer_path, 'SumoCollector'), "%s%s" % (socket.gethostname(), self._instance_count))
+                else:
+                    cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
+                                 os.path.join(self.installer_path, 'SumoCollector'), self._name)
             else:
-                cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
-                             os.path.join(self.installer_path, 'SumoCollector'), self._name)
+                cmd_binary = '%s -Vsumo.accessid=%s -Vsumo.accesskey=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
+                cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
+                self._pkg_installer_name = pkg._installer_name 
+                installer_bin = os.path.join(self.installer_path, self._pkg_installer_name)
+                os.mkdir(os.path.join(self.installer_path, 'SumoCollector'))
+                if self._name is None:
+                    cmd_binary = cmd_binary % (installer_bin , self._accessid, self._accesskey, self._url, \
+                                 os.path.join(self.installer_path, 'SumoCollector'), "%s%s" % (socket.gethostname(), self._instance_count))
+                else:
+                    cmd_binary = cmd_binary % (installer_bin , self._accessid, self._accesskey, self._url, \
+                                 os.path.join(self.installer_path, 'SumoCollector'), self._name)
             self._cmd_binary = cmd_binary
             p = subprocess.Popen(shlex.split(cmd_binary, posix=False), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
             stddata = p.communicate()
