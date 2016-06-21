@@ -274,7 +274,7 @@ class WindowsLocalCollector(LocalCollector):
 
         try:
             # Standalone Installer
-            if(self._username is not None and self._passwprd is not None):
+            if(self._username is not None and self._password is not None):
                 cmd_binary = '%s -Vsumo.email=%s -Vsumo.password=%s -Vcollector.url=%s -dir %s -Vollector.name=%s'
                 cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
                 self._pkg_installer_name = pkg._installer_name 
