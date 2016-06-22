@@ -267,6 +267,7 @@ class TestHostMetrics(object):
         SESSION_URI = SESSION_URI.replace('https://', '')
         resp, cont = restconn.make_request('POST', SESSION_URI, str(content_fill))
         verifier.verify_true(resp.status == 200)
+        cont_json = json.loads(cont)
         search_id = str(cont_json['results'][str(panel_id)]['searchQueryId'])
         QUERY_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'reports/%s/sessionidsV2?sid=%s' % (tab_id, search_id))
         QUERY_URI = QUERY_URI.replace('https://', '')
