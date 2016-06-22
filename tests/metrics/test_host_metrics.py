@@ -10,9 +10,11 @@ import json
 import subprocess
 import shlex
 import socket
+import codecs
 from conftest import params
 
 LOGGER = logging.getLogger('TestHostMetrics')
+verifier = VerifierBase()
 tries = 10
 time_to_wait = 10
 
@@ -84,7 +86,6 @@ class TestHostMetrics(object):
         result_json = json.loads(cont)
         cpu_load_avg_5_sumo = result_json['response'][0]['results'][0]['datapoints']['value'][0]
         logger = logging.getLogger()
-        verifier = VerifierBase()
         verifier.verify_true(abs(cpu_load_avg_5_uptime - cpu_load_avg_5_sumo) / cpu_load_avg_5_uptime < 0.01, \
                              "uptime %s is very different than Sumo %s" % (cpu_load_avg_5_uptime, cpu_load_avg_5_sumo))
 
@@ -151,7 +152,6 @@ class TestHostMetrics(object):
                     raise e
 
         logger = logging.getLogger()
-        verifier = VerifierBase()
         verifier.verify_true(abs(cpu_load_avg_5_uptime - cpu_load_avg_5_sumo) / cpu_load_avg_5_uptime < 0.15, \
                              "uptime %s is very different than Sumo %s" % (cpu_load_avg_5_uptime, cpu_load_avg_5_sumo))
 
@@ -217,27 +217,58 @@ class TestHostMetrics(object):
                 content_list.remove(item)
         metrics_tags.sort()
         content_list.sort()
-        verifier = VerifierBase()
         verifier.verify_true(len(metrics_tags) == len(content_list))
         for each in range(len(metrics_tags)):
             verifier.verify_true(str(metrics_tags[each]) == str(content_list[each]))
 
-    def test_cpu_idle_with_graphite_service_api(self, local_collector, servicerest_conn):
+    def test_cpu_idle_with_graphite_service_api(self, servicerest_conn):
         restconn = servicerest_conn
-        restconn.update_headers('accept', 'application/json')
-        restconn.update_headers('content-type', 'application/json')
+        restconn.HEADERS.pop('Accept')
+        restconn.HEADERS.pop('Content-Type')
+        restconn.update_headers('accept', 'application/json, text/plain, */*')
+        restconn.update_headers('content-type', 'application/json;charset=UTF-8')
+        restconn.update_headers('connection', 'keep-alive')
         LOGIN_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'authentication/loginwithcredentials')
         LOGIN_URI = LOGIN_URI.replace('https://', '')
         params = '{"email":"%s","password":"%s"}'
         params = params % (restconn.config.option.username, restconn.config.option.password)
         resp, cont = restconn.make_request('POST', LOGIN_URI, params)
         cookie = resp['set-cookie']
+        restconn.update_headers('Cookie', cookie)
         cont_json = json.loads(cont)
         ApiSession = str(cont_json['apiSessionId'])
-        restconn.update_headers('Cookie', cookie)
-        restconn.update_headers('ApiSession', ApiSession)
-        USER_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'authentication/user')
-        USER_URI = USER_URI.replace('https://', '')
-        resp, cont = restconn.make_request('GET', USER_URI)
 
-        pytest.set_trace()
+        ASID = "ASID=%s" % ApiSession
+        cookie_new = "%s; %s" % (restconn.HEADERS['Cookie'], ASID)
+        restconn.update_headers('Cookie', cookie_new)
+        restconn.update_headers('ApiSession', ApiSession)
+        # Get the folder where all the tabs exist
+        MYLABS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'content/folder/mylabs')
+        MYLABS_URI = MYLABS_URI.replace('https://', '')
+        resp, cont = restconn.make_request('GET', MYLABS_URI)
+        cont_json = json.loads(cont)
+        # Grab the first children, and get its ID
+        tab_id = cont_json['folder']['children'][0]['interactiveReportReference']['id']
+        # Get the dashboard ID
+        REPORT_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'reports/%s' % tab_id)
+        REPORT_URI = REPORT_URI.replace('https://', '')
+        resp, cont = restconn.make_request('GET', REPORT_URI)
+        cont_json = json.loads(cont)
+        panel_id = cont_json['panels'][0]['id']
+        # Create a session for the panel
+        query_path = metrics_list = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'metrics_query.json')
+        verifier.verify_true(os.path.exists(query_path))
+        with codecs.open(query_path, encoding='utf-8') as data_file:
+            content = data_file.read()
+            content = content.replace('\n', '')
+
+        content_fill = content % (panel_id, -900000, '_source=weimin_cloud_watch')
+        SESSION_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'reports/%s/sessionids' % tab_id)
+        SESSION_URI = SESSION_URI.replace('https://', '')
+        resp, cont = restconn.make_request('POST', SESSION_URI, str(content_fill))
+        verifier.verify_true(resp.status == 200)
+        search_id = str(cont_json['results'][str(panel_id)]['searchQueryId'])
+        QUERY_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'reports/%s/sessionidsV2?sid=%s' % (tab_id, search_id))
+        QUERY_URI = QUERY_URI.replace('https://', '')
+        resp, cont = restconn.make_request('GET', QUERY_URI)
+        verifier.verify_true(resp.status == 200)

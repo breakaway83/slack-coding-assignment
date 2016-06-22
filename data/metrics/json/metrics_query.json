@@ -1,0 +1,13 @@
+{
+    "aggregateKeyFilters": {},
+    "panelTimerangeTuples": [{
+        "id": "%s",
+        "timeRange": "[{\"t\":\"relative\",\"d\":%s}]",
+        "metricsQueries": [{
+            "rowId": "A",
+            "query": "%s"
+        }],
+        "queryString": ""
+    }],
+    "timeZone": "America/Los_Angeles"
+}
