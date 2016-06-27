@@ -49,10 +49,10 @@ def remote_sumo(request):
                ''
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'Administrator'
+               ''
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
+               ''
     remote_sumo = AWSSumo(remote_url)
     return remote_sumo
 
@@ -66,14 +66,25 @@ def handle_remotetest(request, remote_sumo):
     LOGGER.info("Inside handle_remotetest")
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'Administrator'
+               ''
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
-
-    remote_sumo.create_logged_in_connector(contype=Connector.REST,
-                                           username=username,
-                                           password=password)
+               ''
+    accessid = request.config.option.accessid \
+               if hasattr(request.config.option, 'accessid') else \
+               ''
+    accesskey = request.config.option.accesskey \
+               if hasattr(request.config.option, 'accesskey') else \
+               ''
+    xstr = lambda s: s is not '' and s or None
+    if (xstr(username) is not None and xstr(password) is not None):
+        remote_sumo.create_logged_in_connector(contype=Connector.REST,
+                                               username=username,
+                                               password=password)
+    else:
+        remote_sumo.create_logged_in_connector(contype=Connector.REST,
+                                               username=accessid,
+                                               password=accesskey)
     restconn = remote_sumo.connector(Connector.REST, username)
     restconn.config = request.config
 
@@ -86,15 +97,16 @@ def handle_remotetest(request, remote_sumo):
     request.addfinalizer(fin)
     return restconn
 
+
 @pytest.fixture(scope="class")
 def servicerest_conn(request, remote_sumo):
     LOGGER.info("Inside servicerest_conn.")
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'Administrator'
+               ''
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
+               ''
 
     remote_sumo.create_logged_in_connector(contype=Connector.SERVICEREST,
                                                    username=username,
@@ -125,16 +137,16 @@ def local_collector(request):
                     ''
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'Administrator'
+               ''
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
+               ''
     accessid = request.config.option.accessid \
                if hasattr(request.config.option, 'accessid') else \
-               '123'
+               ''
     accesskey = request.config.option.accesskey \
                if hasattr(request.config.option, 'accesskey') else \
-               '456'
+               ''
     archive_dir = os.path.join(os.environ['TEST_ARTIFACTS'], 'archives')
     if os.path.isdir(archive_dir):
         shutil.rmtree(archive_dir)
@@ -164,10 +176,16 @@ def connector_remotesumo(request, remote_sumo):
     LOGGER.info("Inside connector_remotesumo.")
     username = request.config.option.username \
                if hasattr(request.config.option, 'username') else \
-               'Administrator'
+               ''
     password = request.config.option.password \
                if hasattr(request.config.option, 'password') else \
-               'Testing123@'
+               ''
+    accessid = request.config.option.accessid \
+               if hasattr(request.config.option, 'accessid') else \
+               ''
+    accesskey = request.config.option.accesskey \
+               if hasattr(request.config.option, 'accesskey') else \
+               ''
 
     remote_sumo.create_logged_in_connector(contype=Connector.REST,
                                            username=username,

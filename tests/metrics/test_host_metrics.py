@@ -256,7 +256,7 @@ class TestHostMetrics(object):
         cont_json = json.loads(cont)
         panel_id = cont_json['panels'][0]['id']
         # Create a session for the panel
-        query_path = metrics_list = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'metrics_query.json')
+        query_path = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'metrics_query.json')
         verifier.verify_true(os.path.exists(query_path))
         with codecs.open(query_path, encoding='utf-8') as data_file:
             content = data_file.read()
