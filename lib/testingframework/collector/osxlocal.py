@@ -110,7 +110,7 @@ class OSXLocalCollector(LocalCollector):
             contents_path = os.path.join(self.installer_path, 'Sumo Logic Collector Installer.app', 'Contents', 'MacOS')
             os.chdir(contents_path)
 
-            if(self._username is not None and self._password is not None):
+            if(self.xstr(self._username) != '' and self.xstr(self._password) != ''):
                 cmd_binary = './JavaApplicationStub -Vsumo.email=%s -Vsumo.password=%s -Vcollector.url=%s -Vollector.name=%s'
                 cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
                 if self._name is None:
@@ -142,3 +142,6 @@ class OSXLocalCollector(LocalCollector):
             stddata = proc.communicate()
 
         self.logger.info('Collector has been installed.')
+
+    def xstr(self, s):
+        return s if s else ''

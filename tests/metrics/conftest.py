@@ -85,6 +85,7 @@ def handle_remotetest(request, remote_sumo):
         remote_sumo.create_logged_in_connector(contype=Connector.REST,
                                                username=accessid,
                                                password=accesskey)
+        username = accessid
     restconn = remote_sumo.connector(Connector.REST, username)
     restconn.config = request.config
 
@@ -187,9 +188,17 @@ def connector_remotesumo(request, remote_sumo):
                if hasattr(request.config.option, 'accesskey') else \
                ''
 
-    remote_sumo.create_logged_in_connector(contype=Connector.REST,
-                                           username=username,
-                                           password=password)
+    xstr = lambda s: s is not '' and s or None
+    if (xstr(username) is not None and xstr(password) is not None):
+        remote_sumo.create_logged_in_connector(contype=Connector.REST,
+                                               username=username,
+                                               password=password)
+    else:
+        remote_sumo.create_logged_in_connector(contype=Connector.REST,
+                                               username=accessid,
+                                               password=accesskey)
+        username = accessid
+
     restconn = remote_sumo.connector(Connector.REST, username)
     restconn.config = request.config
 

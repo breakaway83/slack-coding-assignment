@@ -108,14 +108,14 @@ class TestHostMetrics(object):
         SOURCE_URI = "%s/sources" % individual_collector
         SOURCE_URI = SOURCE_URI.replace('https://', '')
         # Create the host metrics source
+        metrics_path = os.path.join(os.environ['TEST_DIR'], 'data', 'metrics', 'json', 'host_metrics_random_name.json')
+        metrics_fd = open(metrics_path, 'r')
+        content = metrics_fd.read()
+        metrics_fd.close()
+        content = content.replace('\n', ' ')
+        postfix = int(round(time.time() * 1000))
         hostname = socket.gethostname()
-        host_metrics_body = '{  "source":{    "name":"weimin_host_metrics",    "description":"weimin_host_metrics", \
-                            "category":"weimin_host_metrics",    "automaticDateParsing":false,  \
-                            "multilineProcessingEnabled":false,    "useAutolineMatching":false,    "forceTimeZone":false, \
-                            "timeZone":"GMT",    "filters":[],    "cutoffTimestamp":0,    "encoding":"UTF-8",  \
-                            "paused":false,    "sourceType":"SystemStats",    "interval":15000,    "hostName":"%s", \
-                            "alive":true  }}'
-        host_metrics_body = host_metrics_body % hostname
+        host_metrics_body = content % (postfix, postfix, postfix, hostname)
         resp, cont = restconn.make_request("POST", SOURCE_URI, host_metrics_body)
 
         # Let us get the "uptime" values first
@@ -133,7 +133,7 @@ class TestHostMetrics(object):
         # Get the cpu load avg from Sumo Metrics
         time.sleep(15)
         endTime = current_milli_time()
-        query = '{"query":[{"query":"_source=weimin_host_metrics  metric=CPU_LoadAvg_5min","rowId":"A"}],"startTime":%s,\
+        query = '{"query":[{"query":"_source=weimin_host_metrics*  metric=CPU_LoadAvg_5min","rowId":"A"}],"startTime":%s,\
                 "endTime":%s, "requestedDataPoints": 600, "maxDataPoints": 800}'
         query = query % (startTime, endTime)
         METRICS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'metrics/results/')
@@ -189,7 +189,7 @@ class TestHostMetrics(object):
         resp, cont = restconn.make_request("POST", METRICS_URI, query)
         cont_dic = json.loads(cont)
         hash_tags = {}
-	for itr in range(tries):
+        for itr in range(tries):
             try:
                 for eachTag in cont_dic['results']:
                     if eachTag['name'] in hash_tags.keys():
@@ -242,6 +242,7 @@ class TestHostMetrics(object):
         cookie_new = "%s; %s" % (restconn.HEADERS['Cookie'], ASID)
         restconn.update_headers('Cookie', cookie_new)
         restconn.update_headers('ApiSession', ApiSession)
+
         # Get the folder where all the tabs exist
         MYLABS_URI = "%s%s" % (restconn.config.option.sumo_api_url, 'content/folder/mylabs')
         MYLABS_URI = MYLABS_URI.replace('https://', '')

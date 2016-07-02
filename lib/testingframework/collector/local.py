@@ -48,6 +48,7 @@ class LocalCollector(Collector):
         self._name = name
         self._file_utils = FileUtils()
         self._is_windows = platform.system() == 'Windows'
+        self._collector_name = None
 
     @classmethod
     def _validate_collector_home(cls, collector_home):
@@ -362,9 +363,11 @@ class LocalCollector(Collector):
                 cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
                 installer_bin = os.path.join(self.installer_path, pkg._installer_name)
                 if self._name is None:
+                    self._collector_name = socket.gethostname()
                     cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                                  os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
                 else:
+                    self._collector_name = self._name
                     cmd_binary = cmd_binary % (installer_bin , self._username, self._password, self._url, \
                                  os.path.join(self.installer_path, 'SumoCollector'), self._name)
             else:
@@ -372,9 +375,11 @@ class LocalCollector(Collector):
                 cmd_binary = '{0} {1}'.format(cmd_binary, self.COMMON_FLAGS)
                 installer_bin = os.path.join(self.installer_path, pkg._installer_name)
                 if self._name is None:
+                    self._collector_name = socket.gethostname()
                     cmd_binary = cmd_binary % (installer_bin , self._accessid, self._accesskey, self._url, \
                                  os.path.join(self.installer_path, 'SumoCollector'), socket.gethostname())
                 else:
+                    self._collector_name = self._name
                     cmd_binary = cmd_binary % (installer_bin , self._accessid, self._accesskey, self._url, \
                                  os.path.join(self.installer_path, 'SumoCollector'), self._name)
             p = subprocess.Popen(shlex.split(cmd_binary), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
