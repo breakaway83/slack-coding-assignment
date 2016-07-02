@@ -118,6 +118,29 @@ class TestHostMetrics(object):
         host_metrics_body = content % (postfix, postfix, postfix, hostname)
         resp, cont = restconn.make_request("POST", SOURCE_URI, host_metrics_body)
 
+        # Get sourceid just created
+        content_json = json.loads(content)
+        source_name = "%s" % (str(content_json['source']['name']) % postfix)
+        resp, cont = restconn.make_request("GET", SOURCE_URI)
+        verifier.verify_true(resp.status == 200)
+        cont_json = json.loads(cont)
+        for eachSource in cont_json['sources']:
+            if eachSource['name'] == source_name:
+                source_id = eachSource['id']
+                break
+
+        # Particular source URI
+        P_SOURCE_URI = "%s/sources/%s" % (individual_collector, source_id)
+        P_SOURCE_URI = P_SOURCE_URI.replace('https://', '')
+        # Get Etag
+        resp, cont = restconn.make_request("GET", P_SOURCE_URI)
+        cont_json = json.loads(cont)
+        cont_json['source']['interval'] += cont_json['source']['interval'] + 10000
+        body = json.dumps(cont_json)
+        etag = resp['etag']
+        restconn.update_headers('If-Match', etag)
+        resp, cont = restconn.make_request("PUT", P_SOURCE_URI, body)
+
         # Let us get the "uptime" values first
         args = shlex.split('uptime')
         current_milli_time = lambda: int(round(time.time() * 1000))
