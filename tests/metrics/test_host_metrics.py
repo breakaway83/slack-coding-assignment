@@ -132,15 +132,6 @@ class TestHostMetrics(object):
         # Particular source URI
         P_SOURCE_URI = "%s/sources/%s" % (individual_collector, source_id)
         P_SOURCE_URI = P_SOURCE_URI.replace('https://', '')
-        # Get Etag
-        resp, cont = restconn.make_request("GET", P_SOURCE_URI)
-        cont_json = json.loads(cont)
-        cont_json['source']['interval'] += cont_json['source']['interval'] + 10000
-        body = json.dumps(cont_json)
-        etag = resp['etag']
-        restconn.update_headers('If-Match', etag)
-        resp, cont = restconn.make_request("PUT", P_SOURCE_URI, body)
-
         # Let us get the "uptime" values first
         args = shlex.split('uptime')
         current_milli_time = lambda: int(round(time.time() * 1000))
@@ -177,6 +168,68 @@ class TestHostMetrics(object):
         logger = logging.getLogger()
         verifier.verify_true(abs(cpu_load_avg_5_uptime - cpu_load_avg_5_sumo) / cpu_load_avg_5_uptime < 0.15, \
                              "uptime %s is very different than Sumo %s" % (cpu_load_avg_5_uptime, cpu_load_avg_5_sumo))
+
+        # Get Etag
+        resp, cont = restconn.make_request("GET", P_SOURCE_URI)
+        cont_json = json.loads(cont)
+        # Update source JSON
+        source_name = "%s%s" % (cont_json['source']['name'], '_1')
+        cont_json['source']['name'] = source_name
+        source_description = "%s%s" % (cont_json['source']['description'], '_1')
+        cont_json['source']['description'] = source_description
+        source_category = "%s%s" % (cont_json['source']['category'], '_1')
+        cont_json['source']['category'] = source_category
+        if not cont_json['source']['automaticDateParsing']:
+            cont_json['source']['automaticDateParsing'] = True
+            source_automaticDateParsing = True
+        else:
+            cont_json['source']['automaticDateParsing'] = False
+            source_automaticDateParsing = False
+        if not cont_json['source']['useAutolineMatching']:
+            cont_json['source']['useAutolineMatching'] = True
+            source_useAutolineMatching = True
+        else:
+            cont_json['source']['useAutolineMatching'] = False
+            source_useAutolineMatching = False
+        if not cont_json['source']['forceTimeZone']:
+            cont_json['source']['forceTimeZone'] = True
+            source_forceTimeZone = True
+        else:
+            cont_json['source']['forceTimeZone'] = False
+            source_forceTimeZone = False
+        if cont_json['source']['timeZone'] == "GMT":
+            cont_json['source']['timeZone'] = "America/New_York"
+            source_timezone = "America/New_York"
+        else:
+            cont_json['source']['timeZone'] = "GMT"
+            source_timezone = "GMT"
+        #if not cont_json['source']['paused']:
+        #    cont_json['source']['paused'] = True
+        #    source_paused = True
+        #else:
+        #    cont_json['source']['paused'] = False
+        #    source_paused = False
+        source_hostname = "%s%s" % (cont_json['source']['hostName'], '_1')
+        cont_json['source']['hostName'] = source_hostname
+        source_interval = cont_json['source']['interval'] + 10000
+        cont_json['source']['interval'] = source_interval
+        body = json.dumps(cont_json)
+        etag = resp['etag']
+        restconn.update_headers('If-Match', etag)
+        resp, cont = restconn.make_request("PUT", P_SOURCE_URI, body)
+        # Verify that update works
+        resp, cont = restconn.make_request("GET", P_SOURCE_URI)
+        cont_json = json.loads(cont)
+        verifier.verify_true(cont_json['source']['name'] == source_name)
+        verifier.verify_true(cont_json['source']['description'] == source_description)
+        verifier.verify_true(cont_json['source']['category'] == source_category)
+        verifier.verify_true(cont_json['source']['automaticDateParsing'] == source_automaticDateParsing)
+        #verifier.verify_true(cont_json['source']['useAutolineMatching'] == source_useAutolineMatching)
+        verifier.verify_true(cont_json['source']['forceTimeZone'] == source_forceTimeZone)
+        verifier.verify_true(cont_json['source']['timeZone'] == source_timezone)
+        #verifier.verify_true(cont_json['source']['paused'] == source_paused)
+        verifier.verify_true(cont_json['source']['hostName'] == source_hostname)
+        verifier.verify_true(cont_json['source']['interval'] == source_interval)
 
     def test_cpu_idle_with_graphite(self, local_collector, connector_remotesumo_graphite_source):
         LOGGER.info("Start a host metrics cpu load average test with collector.")
