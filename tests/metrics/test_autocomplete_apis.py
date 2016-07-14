@@ -11,6 +11,7 @@ import subprocess
 import shlex
 import socket
 import codecs
+import datetime
 from conftest import params
 
 LOGGER = logging.getLogger('TestAutocompleteAPIs')
@@ -32,7 +33,17 @@ class TestAutocompleteAPIs(object):
         with codecs.open(autocomplete_path, encoding='utf-8') as data_file:
             content = data_file.read()
             content = content.replace('\n', '')
-        content_fill = content % (1, "_source=weimin_cloud_watch", len("_source=weimin_cloud_watch") + 1, 1468463733000, 1468467333000, 1)
+        time_time = time.time()
+        end_milli_time = lambda: int(round(time_time * 1000))
+        start_milli_seconds = lambda: int(round((time_time + datetime.timedelta(minutes=-15).total_seconds()) * 1000))
+        query = "_source=weimin_cloud_watch"
+        content_fill = content % (1, query, len(query)+ 1, start_milli_seconds(), end_milli_time(), 1)
         resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
+        cont_dict = json.loads(cont)
+        verifier.verify_true(len(cont_dict['suggestions']) > 0)
 
-        pytest.set_trace()
+        query = "_sourceCategory=weimin_graphite  _3=cpu-idle | avg"
+        content_fill = content % (1, query, len(query) + 1, start_milli_seconds(), end_milli_time(), 1)
+        resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
+        cont_dict = json.loads(cont)
+        verifier.verify_true(len(cont_dict['suggestions']) > 0)
