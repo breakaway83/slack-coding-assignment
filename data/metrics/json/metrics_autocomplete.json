@@ -1,5 +1,5 @@
 {
-    "queryId": %s,
+    "queryId": "%s",
     "query": "%s",
     "pos": %s,
     "queryStartTime": %s,

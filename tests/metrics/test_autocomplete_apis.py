@@ -32,5 +32,7 @@ class TestAutocompleteAPIs(object):
         with codecs.open(autocomplete_path, encoding='utf-8') as data_file:
             content = data_file.read()
             content = content.replace('\n', '')
+        content_fill = content % (1, "_source=weimin_cloud_watch", len("_source=weimin_cloud_watch") + 1, 1468463733000, 1468467333000, 1)
+        resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
 
         pytest.set_trace()
