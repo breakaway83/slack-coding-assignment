@@ -2,9 +2,11 @@ from testingframework.connector.base import Connector
 from testingframework.util import fileutils
 from sumotest.util.VerifierBase import VerifierBase
 import logging
+import logging.handlers
 import pytest
 import time
 import os
+import sys
 import re
 import json
 import subprocess
@@ -15,6 +17,17 @@ import datetime
 from conftest import params
 
 LOGGER = logging.getLogger('TestAutocompleteAPIs')
+LOGGER.setLevel(logging.INFO)
+fh = logging.FileHandler('testingframework.log')
+fh.setLevel(logging.INFO)
+ch = logging.StreamHandler(sys.stdout)
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+fh.setFormatter(formatter)
+LOGGER.addHandler(ch)
+LOGGER.addHandler(fh)
+
 verifier = VerifierBase()
 tries = 10
 time_to_wait = 10
@@ -59,6 +72,7 @@ class TestAutocompleteAPIs(object):
         resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
         cont_dict = json.loads(cont)
         verifier.verify_true(len(cont_dict['suggestions']) == 0)
+        LOGGER.info("hello world")
 
         query = "_source=weimin_cloud_watch2 InstanceId=i-5c0bb3dc metric=CPUUtilization | "
         content_fill = content % (1, query, len(query), start_milli_seconds(), end_milli_time(), 1)

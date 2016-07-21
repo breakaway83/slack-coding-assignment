@@ -7,13 +7,11 @@ Module for handling generic connections with a Sumo deployment.
 '''
 
 from abc import ABCMeta
-
 from testingframework.log import Logging
-
 
 class Connector(Logging):
     '''
-    A connector is an object that handles connections with Sumo.
+    A connector is an object that handles connections with Sumo APIs (API or Service).
 
     This is the abstract base class for all connectors.
 
@@ -30,7 +28,6 @@ class Connector(Logging):
     __metaclass__ = ABCMeta
     DEFAULT_USERNAME = 'Administrator'
     DEFAULT_PASSWORD = ''
-    #DEFAULT_NAMESPACE = 'nobody:system'
 
     # types of connectors
     (REST, SERVICEREST, SDK) = range(0, 3)
