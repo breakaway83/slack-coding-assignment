@@ -72,7 +72,14 @@ class TestAutocompleteAPIs(object):
         resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
         cont_dict = json.loads(cont)
         verifier.verify_true(len(cont_dict['suggestions']) == 0)
-        LOGGER.info("hello world")
+
+        query = "_source=weimin_cloud_watch2 InstanceId=i-5c0bb3dc metric=CP "
+        content_fill = content % (1, query, len(query), start_milli_seconds(), end_milli_time(), 1)
+        resp, cont = restconn.make_request("POST", AUTOCOMPLETE_URI, str(content_fill))
+        cont_dict = json.loads(cont)
+        verifier.verify_true(len(cont_dict['suggestions']) == 0)
+
+        pytest.set_trace()
 
         query = "_source=weimin_cloud_watch2 InstanceId=i-5c0bb3dc metric=CPUUtilization | "
         content_fill = content % (1, query, len(query), start_milli_seconds(), end_milli_time(), 1)
