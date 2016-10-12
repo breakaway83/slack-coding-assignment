@@ -77,18 +77,6 @@ mkdir %TEST_LIB%\py
 echo [INFO] copying files to %TEST_LIB%\py
 xcopy /s /q /y %TEST_DIR%\contrib\py-1.4.7\py %TEST_LIB%\py\
 
-echo [INFO] unpack execnet to .\lib .....
-%unzip% x %TEST_DIR%\contrib\execnet-1.1.zip -o%TEST_DIR%\contrib -r -y > nul
-rmdir /s /q %TEST_LIB%\execnet
-mkdir %TEST_LIB%\execnet
-xcopy /s /q /y %TEST_DIR%\contrib\execnet-1.1\execnet %TEST_LIB%\execnet
-
-echo [INFO] unpack pytest-xdist to .\lib .....
-%unzip% x %TEST_DIR%\contrib\pytest-xdist-1.8.zip -o%TEST_DIR%\contrib -r -y > nul
-rmdir /s /q %TEST_LIB%\xdist
-mkdir %TEST_LIB%\xdist
-xcopy /s /q %TEST_DIR%\contrib\pytest-xdist-1.8\xdist %TEST_LIB%\xdist
-
 echo [INFO] unpack httplib2 .\lib .....
 %unzip% x %TEST_DIR%\contrib\httplib2-0.9.2.zip -o%TEST_DIR%\contrib -r -y > nul
 rmdir /s /q %TEST_LIB%\httplib2-0.9.2
