@@ -1,8 +1,0 @@
-{
-    "queryId": "%s",
-    "query": "%s",
-    "pos": %s,
-    "queryStartTime": %s,
-    "queryEndTime": %s,
-    "apiVersion": "%s"
-}

@@ -1,6 +1,0 @@
-{
-  "query": "_source = %s",
-  "from": "%s",
-  "to": "%s",
-  "timeZone": "UTC"
-}
