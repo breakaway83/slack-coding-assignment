@@ -40,7 +40,7 @@ def pytest_addoption(parser):
     '''
     splk_group = parser.getgroup("Slack Coding Assignment")
     splk_group.addoption('--slack_base_url', dest='slack_base_url',
-                     help='slack's base url',
+                     help='slack\'s base url',
                      default="https://slack.com/api/")
     splk_group.addoption('--test_token', dest='test_token',
                      help='test token to access slack APIs',

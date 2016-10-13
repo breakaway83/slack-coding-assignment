@@ -24,7 +24,7 @@ class Connector(Logging):
     DEFAULT_TEST_TOKEN = ''
 
     # types of connectors
-    (REST) = range(0, 1)
+    (REST, SDK) = range(0, 2)
 
     def __init__(self, slack, test_token=None):
         '''
