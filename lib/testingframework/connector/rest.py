@@ -59,8 +59,8 @@ class RESTConnector(Connector):
                                       disable_ssl_certificate_validation=
                                       self._disable_ssl_certificate)
         self._service.follow_redirects = self._follow_redirects
-        self._service.add_credentials(self._test_token)
-        sumo.register_start_listener(self)
+        #self._service.add_credentials(self._test_token)
+        slack.register_start_listener(self)
 
     def make_request(self, method, uri, body=None, urlparam=None,
                      use_sessionkey=False):
@@ -111,7 +111,7 @@ class RESTConnector(Connector):
             'method': method,
             'url': url,
             'body': body,
-            'auth': '{u}:{p}'.format(u=self._username, p=self._password),
+            #'auth': '{u}:{p}'.format(u=self._username, p=self._password),
             'header': self.HEADERS
             }))
         self.logger.info("Response => {r}".format(r=response))
@@ -194,7 +194,7 @@ class RESTConnector(Connector):
         It unregisters itself with the Sumo start listeners.
 
         """
-        self.sumo.unregister_start_listener(self)
+        self.slack.unregister_start_listener(self)
 
     def __call__(self):
         """
