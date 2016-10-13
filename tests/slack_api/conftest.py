@@ -10,6 +10,7 @@ import socket
 import json
 import subprocess
 from testingframework.slack.base import Slack
+from testingframework.slack.aws import AWSSlack
 from testingframework.connector.base import Connector
 
 LOGGER = logging.getLogger()
@@ -41,9 +42,13 @@ def remote_slack(request):
         '''
         LOGGER.info("Inside remote slack deployment fixture")
         slack_base_url = request.config.option.slack_base_url \
-                    if hasattr(request.config.option, 'sumo_base_url') else \
+                    if hasattr(request.config.option, 'slack_base_url') else \
                     ''
-        remote_slack= Slack(sumo_base_url)
+        test_token = request.config.option.test_token \
+                if hasattr(request.config.option, 'test_token') else \
+                ''
+        remote_slack= AWSSlack(slack_base_url)
+        remote_slack.set_test_token_to_use(test_token)
         return remote_slack
 
 @pytest.fixture(scope="session")
@@ -55,6 +60,9 @@ def connector_slack(request, remote_slack):
     LOGGER.info("Inside connector_slack.")
     test_token = request.config.option.test_token \
             if hasattr(request.config.option, 'test_token') else \
+            ''
+    slack_base_url = request.config.option.slack_base_url \
+            if hasattr(request.config.option, 'slack_base_url') else \
             ''
 
     xstr = lambda s: s is not '' and s or None
