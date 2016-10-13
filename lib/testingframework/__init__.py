@@ -1,1 +1,1 @@
-__all__ = ['connector']
+__all__ = ['connector', 'slack']

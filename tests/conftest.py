@@ -44,4 +44,4 @@ def pytest_addoption(parser):
                      default="https://slack.com/api/")
     splk_group.addoption('--test_token', dest='test_token',
                      help='test token to access slack APIs',
-                     default="")
+                     default='')
