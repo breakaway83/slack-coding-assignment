@@ -1,6 +1,6 @@
 from testingframework.connector.base import Connector
+from testingframework.log import Logging
 from slacktest.util.VerifierBase import VerifierBase
-import logging
 import pytest
 import time
 import os
@@ -8,7 +8,8 @@ import re
 import json
 from conftest import params
 
-LOGGER = logging.getLogger('TestFiles')
+logging = Logging()
+LOGGER = logging.logger
 SLACK_URI = "slack.com/api/files.list"
 verifier = VerifierBase()
 
