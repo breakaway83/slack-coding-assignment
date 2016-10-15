@@ -6,31 +6,13 @@ Created on October, 2016
 
 import datetime
 import logging
+from abc import ABCMeta
 
 from logging import FileHandler, Formatter
 
 _LOG_FORMAT = '[%(asctime)s] %(levelname)s - %(name)s: %(message)s'
 _DATE_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
 _FILE_NAME = "testingframework.log"
-
-
-def setup_logger(debug=False):
-    """
-    Setups up the logging library
-
-    @param debug: If debug log messages are to be outputted
-    @type debug: bool
-    """
-    logger = logging.getLogger('')
-    handler = FileHandler(filename=_FILE_NAME, mode="w")
-    handler.setFormatter(HelmutFormatter(_LOG_FORMAT))
-    level = logging.INFO
-    if debug:
-        level = logging.DEBUG
-    logger.addHandler(handler)
-    logger.setLevel(level)
-    logger.debug('Logger: DEBUG logging is enabled')
-
 
 class TestingFrameworkFormatter(Formatter):
 
@@ -43,9 +25,6 @@ class TestingFrameworkFormatter(Formatter):
         # from the _DATE_FORMAT
         return t.strftime(_DATE_FORMAT)[:-3]
 
-from abc import ABCMeta
-
-
 class Logging(object):
 
     __metaclass__ = ABCMeta
@@ -53,6 +32,23 @@ class Logging(object):
     def __init__(self):
         self._logger = self._get_logger()
         # self._log_init_message()  # commenting out, not useful and annoying
+
+    def setup_logger(self, debug=False):
+        """
+        Setups up the logging library
+
+        @param debug: If debug log messages are to be outputted
+        @type debug: bool
+        """
+        logger = self.logger
+        handler = FileHandler(filename=_FILE_NAME, mode="w")
+        handler.setFormatter(TestingFrameworkFormatter(_LOG_FORMAT))
+        level = logger.INFO
+        if debug:
+            level = logging.DEBUG
+        logger.addHandler(handler)
+        logger.setLevel(level)
+        logger.debug('Logger: DEBUG logging is enabled')
 
     def _get_logger(self):
         '''
