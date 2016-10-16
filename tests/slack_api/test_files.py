@@ -15,6 +15,8 @@ logging = Logging()
 LOGGER = logging.logger
 verifier = VerifierBase()
 fileutils = FileUtils()
+tries = 10
+time_to_wait = 30
 
 class TestFiles(object):
     @params([
@@ -23,7 +25,7 @@ class TestFiles(object):
     def test_files_list(self, remote_slack, connector_slack, slack_uri, file_count, testname):
         LOGGER.info("List files currently exisit on Slack.")
         restconn = connector_slack
-        restconn.update_headers('accept', 'application/json')
+        restconn.update_headers('accept', '*/*')
         restconn.update_headers('content-type', 'application/json')
         params = {'token': remote_slack.test_token}
         resp, cont = restconn.make_request("GET", slack_uri, urlparam=params)
@@ -38,7 +40,7 @@ class TestFiles(object):
     ])
     def test_files_upload(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, filename, testname):
         LOGGER.info("Upload a file located at data/files directory.")
-        # upload a lookup file via REST
+        # upload a file in different format via REST
         path_to_file = os.path.abspath(os.path.join(os.path.abspath(os.path.curdir), '..', '..', 'data', 'files', filename))
         content = fileutils.get_file_contents(path_to_file)
         restconn = connector_slack
@@ -54,8 +56,47 @@ class TestFiles(object):
         cont_dic = json.loads(cont)
         verifier.verify_true(cont_dic['ok'])
         # Verify that files.list shows the file
-        resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
-        verifier.verify_true(filename in cont)
+        # Due to the fact that sometime the posted files take sometime to show up in
+        # the files.list result, consider using pooling
+        for i in range(tries):
+            try:
+                resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
+                verifier.verify_true(filename in cont)
+                break
+            except AssertionError as e:
+                if(i < tries - 1):
+                    time.sleep(time_to_wait)
+                else:
+                    raise type(e)("filename %s does not exist in files.list result." % filename)
+
+    @params([
+        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_upload': 'slack.com/api/files.upload', \
+                'content': 'Julie Bort (March 9, 2015). "Salesforce, Evernote, Slack, and other Apple Watch \
+                business apps - Business Insider". Business Insider.', 'filename': 'content.txt', 'testname': 'upload content' },
+    ])
+    def test_files_upload_content(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, content, filename, testname):
+        LOGGER.info("Upload Content.")
+        # upload a file defined in Content via REST
+        restconn = connector_slack
+
+        restconn.update_headers('accept', '*/*')
+        restconn.update_headers('content-type', 'application/json')
+        urlparams = {'token': remote_slack.test_token, 'content': content, 'filename': filename}
+        resp, cont = restconn.make_request("POST", slack_uri_upload, urlparam=urlparams)
+        verifier.verify_true(int(resp['status']) == 200)
+        cont_dic = json.loads(cont)
+        verifier.verify_true(cont_dic['ok'])
+        # Verify that files.list shows the file
+        for i in range(tries):
+            try:
+                resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
+                verifier.verify_true(filename in cont)
+                break
+            except AssertionError as e:
+                if(i < tries - 1):
+                    time.sleep(time_to_wait)
+                else:
+                    raise type(e)("filename %s does not exist in files.list result." % filename)
 
     @params([
         { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'Uber.py', 'testname': 'delete Python file' },
@@ -63,6 +104,7 @@ class TestFiles(object):
         { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'Image1.jpg', 'testname': 'delete image file' },
         { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'SDE.DOCX', 'testname': 'delete Word file' },
         { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'databricks.zip', 'testname': 'delete ZIP file' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'content.txt', 'testname': 'delete file uploaded through Content' },
     ])
     def test_files_delete(self, remote_slack, connector_slack, slack_uri_list, slack_uri_delete, filename, testname):
         restconn = connector_slack
