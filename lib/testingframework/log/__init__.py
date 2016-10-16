@@ -29,9 +29,9 @@ class Logging(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
-        self._logger = self._get_logger()
-        # self._log_init_message()  # commenting out, not useful and annoying
+    def __init__(self, name=''):
+        self._logger = self._get_logger(name)
+        self.setup_logger()
 
     def setup_logger(self, debug=False):
         """
@@ -43,20 +43,25 @@ class Logging(object):
         logger = self.logger
         handler = FileHandler(filename=_FILE_NAME, mode="w")
         handler.setFormatter(TestingFrameworkFormatter(_LOG_FORMAT))
-        level = logger.INFO
+        level = logging.INFO
         if debug:
             level = logging.DEBUG
         logger.addHandler(handler)
         logger.setLevel(level)
-        logger.debug('Logger: DEBUG logging is enabled')
+        logger.debug('Logger: debug logging is enabled')
 
-    def _get_logger(self):
+    def _get_logger(self, name):
         '''
         Creates a new logger for this instance, should only be called once.
+        @param name: Logger name
+        @type name: str
 
         @return: The newly created logger.
         '''
-        return logging.getLogger(self._logger_name)
+        if(name.strip() != ''):
+            return logging.getLogger(name)
+        else:
+            return logging.getLogger(self._logger_name)
 
     @property
     def _logger_name(self):

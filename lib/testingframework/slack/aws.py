@@ -15,13 +15,12 @@ import platform
 import time
 import sys
 import re
-import logging
-
+from testingframework.log import Logging
 import testingframework.util.archiver as archiver
 from .base import Slack
 
 
-LOGGER = logging.getLogger('AWSSlack')
+LOGGER = Logging('AWSSlack').logger
 
 class AWSSlack(Slack):
     '''

@@ -12,7 +12,7 @@ import urllib
 import mimetypes
 from conftest import params
 
-logging = Logging()
+logging = Logging("TestFiles")
 LOGGER = logging.logger
 verifier = VerifierBase()
 fileutils = FileUtils()

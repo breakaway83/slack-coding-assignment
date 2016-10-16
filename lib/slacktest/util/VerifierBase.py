@@ -1,14 +1,4 @@
-"""
-Meta
-====
-    $Id$
-    $DateTime$
-    $Author$
-    $Change$
-"""
-
-import logging
-
+from testingframework.log import Logging
 
 class VerifierBase(object):
     """
@@ -16,7 +6,8 @@ class VerifierBase(object):
     """
 
     def __init__(self, name='verifier'):
-        self.logger = logging.getLogger(name)
+        logging = Logging(name)
+        self.logger = logging.logger
         self.logger.info("VerifierBase")
 
     def fail(self, msg=''):

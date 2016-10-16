@@ -1,4 +1,3 @@
-import logging
 import time
 import os
 import platform
@@ -9,8 +8,9 @@ import shlex
 import socket
 import json
 import subprocess
+from testingframework.log import Logging
 
-LOGGER = logging.getLogger()
+LOGGER = Logging().logger
 
 
 def pytest_generate_tests(metafunc):

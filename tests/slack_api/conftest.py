@@ -1,4 +1,3 @@
-import logging
 import time
 import os
 import platform
@@ -12,8 +11,9 @@ import subprocess
 from testingframework.slack.base import Slack
 from testingframework.slack.aws import AWSSlack
 from testingframework.connector.base import Connector
+from testingframework.log import Logging
 
-LOGGER = logging.getLogger()
+LOGGER = Logging().logger
 
 
 @pytest.fixture(scope="session")
