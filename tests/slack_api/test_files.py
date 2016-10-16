@@ -17,7 +17,7 @@ LOGGER = logging.logger
 verifier = VerifierBase()
 fileutils = FileUtils()
 tries = 10
-time_to_wait = 30
+time_to_wait = 10
 
 class TestFiles(object):
     @params([
@@ -120,3 +120,5 @@ class TestFiles(object):
                 verifier.verify_true(int(resp['status']) == 200)
                 cont_dic = json.loads(cont)
                 verifier.verify_true(cont_dic['ok'])
+        resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
+        verifier.verify_false(filename in cont)
