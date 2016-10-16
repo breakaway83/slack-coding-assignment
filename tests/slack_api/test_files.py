@@ -2,6 +2,7 @@ from testingframework.connector.base import Connector
 from testingframework.log import Logging
 from testingframework.util.fileutils import FileUtils
 from slacktest.util.VerifierBase import VerifierBase
+from slacktest.util.multipart_formdata import encode_multipart_formdata
 import pytest
 import time
 import os
@@ -47,7 +48,7 @@ class TestFiles(object):
 
         fields = []
         files = [('file', filename, content)]
-        content_type, body = self.encode_multipart_formdata(fields, files)
+        content_type, body = encode_multipart_formdata(fields, files)
         restconn.update_headers('accept', '*/*')
         restconn.update_headers('content-type', '%s' % content_type)
         urlparams = {'token': remote_slack.test_token}
@@ -119,32 +120,3 @@ class TestFiles(object):
                 verifier.verify_true(int(resp['status']) == 200)
                 cont_dic = json.loads(cont)
                 verifier.verify_true(cont_dic['ok'])
-
-    def encode_multipart_formdata(self, fields, files):
-        """
-        fields is a sequence of (name, value) elements for regular form fields.
-        files is a sequence of (name, filename, value) elements for data to be uploaded as files
-        Return (content_type, body) ready for httplib.HTTP instance
-        """
-        BOUNDARY = '----------bound@ry_$'
-        CRLF = '\r\n'
-        L = []
-        for (key, value) in fields:
-            L.append('--' + BOUNDARY)
-            L.append('Content-Disposition: form-data; name="%s"' % key)
-            L.append('')
-            L.append(value)
-        for (key, filename, value) in files:
-            L.append('--' + BOUNDARY)
-            L.append('Content-Disposition: form-data; name="%s"; filename="%s"' % (key, filename))
-            L.append('Content-Type: %s' % self.get_content_type(filename))
-            L.append('')
-            L.append(value)
-        L.append('--' + BOUNDARY + '--')
-        L.append('')
-        body = CRLF.join(L)
-        content_type = 'multipart/form-data; boundary=%s' % BOUNDARY
-        return content_type, body
-
-    def get_content_type(self, filename):
-        return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
