@@ -22,6 +22,14 @@ tries = 10
 time_to_wait = 10
 
 class TestFiles(object):
+    '''
+    Test cases handle the following exceptions/errors:
+        token_revoked
+        file_not_found
+        AssertionError
+        SSLError
+    '''
+
     @params([
         { 'slack_uri_list': 'slack.com/api/files.list', 
             'slack_uri_upload': 'slack.com/api/files.upload', 
@@ -48,7 +56,11 @@ class TestFiles(object):
         resp, cont = restconn.make_request("POST", slack_uri_upload, body=body, urlparam=urlparams)
         verifier.verify_true(int(resp['status']) == 200)
         cont_dic = json.loads(cont)
-        verifier.verify_true(cont_dic['ok'])
+        try:
+            verifier.verify_true(cont_dic['ok'])
+        except AssertionError as e:
+            if(cont_dic['error'] == 'token_revoked'):
+                raise type(e)("test token is revoked")
         # Verify that files.list lists the file
         # According to my observation, sometime the posted files take sometime to show up in
         # the files.list result, consider using pooling
@@ -97,7 +109,11 @@ class TestFiles(object):
         resp, cont = restconn.make_request("POST", slack_uri_upload, urlparam=urlparams)
         verifier.verify_true(int(resp['status']) == 200)
         cont_dic = json.loads(cont)
-        verifier.verify_true(cont_dic['ok'])
+        try:
+            verifier.verify_true(cont_dic['ok'])
+        except AssertionError as e:
+            if(cont_dic['error'] == 'token_revoked'):
+                raise type(e)("test token is revoked")
         # Verify that files.list shows the file
         for i in range(tries):
             try:
@@ -133,6 +149,11 @@ class TestFiles(object):
         urlparams = {'token': remote_slack.test_token}
         resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
         cont_dic = json.loads(cont)
+        try:
+            verifier.verify_true(cont_dic['ok'])
+        except AssertionError as e:
+            if(cont_dic['error'] == 'token_revoked'):
+                raise type(e)("test token is revoked")
         files_list = cont_dic['files']
         found = False
         for file in files_list:
