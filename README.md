@@ -26,7 +26,7 @@ Also, if you want to use urllib2.urlopen to download build through the URL, Micr
 Execution result is something lokks like this:
 
 pytest -v --pdb --test_token='my_test_token' test_files.py
-=========================================================================================== test session starts ============================================================================================
+==== test session starts ====
 
 platform darwin -- Python 2.7.12 -- pytest-2.3.3 -- /usr/local/opt/python/bin/python2.7
 
@@ -42,4 +42,4 @@ test_files.py:113: TestFiles.test_files_delete[delete file uploaded through Cont
 
 test_files.py:113: TestFiles.test_files_delete[delete nonexistent file] PASSED
 
-======================================================================================== 5 passed in 33.26 seconds =========================================================================================
+==== 5 passed in 33.26 seconds ====
