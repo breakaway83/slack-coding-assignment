@@ -25,7 +25,7 @@ Also, if you want to use urllib2.urlopen to download build through the URL, Micr
 
 Execution result is something lokks like this:
 
-pytest -v --pdb --test_token='xoxp-89565751063-89565751287-89582776801-95e7934074206600de81bbc87f878eb4'  test_files.py
+pytest -v --pdb --test_token='my_test_token' test_files.py
 =========================================================================================== test session starts ============================================================================================
 platform darwin -- Python 2.7.12 -- pytest-2.3.3 -- /usr/local/opt/python/bin/python2.7
 collected 5 items
