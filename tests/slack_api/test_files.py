@@ -23,7 +23,9 @@ time_to_wait = 10
 
 class TestFiles(object):
     @params([
-        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_upload': 'slack.com/api/files.upload', 'filename': 'slack_api_test.png', 'testname': 'upload PNG file' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 
+            'slack_uri_upload': 'slack.com/api/files.upload', 
+            'filename': 'slack_api_test.png', 'testname': 'upload PNG file' },
     ])
     def test_files_upload(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, filename, testname):
         '''
@@ -47,8 +49,8 @@ class TestFiles(object):
         verifier.verify_true(int(resp['status']) == 200)
         cont_dic = json.loads(cont)
         verifier.verify_true(cont_dic['ok'])
-        # Verify that files.list shows the file
-        # Due to the fact that sometime the posted files take sometime to show up in
+        # Verify that files.list lists the file
+        # According to my observation, sometime the posted files take sometime to show up in
         # the files.list result, consider using pooling
         # List only by type:images when calling the endpoint
         urlparams.update({'types':'images'})
@@ -59,7 +61,7 @@ class TestFiles(object):
                 thumbs_dic = cont_dic['file']
                 for j in thumbs_dic.keys():
                     # Matching thumbnail URLs
-                    # thumbnail URLs appear to be the filename in a lowercase
+                    # thumbnail URLs appear to be the filename in lowercase
                     if(re.match('thumb_[\d]+$', str(j))):
                         verifier.verify_true(filename.lower().split('.')[0] in str(thumbs_dic[j]))
                 break
@@ -75,9 +77,11 @@ class TestFiles(object):
                     raise type(e)("Internet connection is still not there.")
 
     @params([
-        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_upload': 'slack.com/api/files.upload', \
-                'content': 'Julie Bort (March 9, 2015). "Salesforce, Evernote, Slack, and other Apple Watch \
-                business apps - Business Insider". Business Insider.', 'filename': 'content.txt', 'testname': 'upload content' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 
+            'slack_uri_upload': 'slack.com/api/files.upload',
+            'content': 'Julie Bort (March 9, 2015). "Salesforce, Evernote, Slack, and other Apple Watch business apps - Business Insider". Business Insider.', 
+            'filename': 'content.txt', 
+            'testname': 'upload content' },
     ])
     def test_files_upload_content(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, content, filename, testname):
         '''
@@ -107,9 +111,18 @@ class TestFiles(object):
                     raise type(e)("filename %s does not exist in files.list result." % filename)
 
     @params([
-        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'slack_api_test.png', 'testname': 'delete PNG file' },
-        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'content.txt', 'testname': 'delete file uploaded through Content' },
-        { 'slack_uri_list': 'slack.com/api/files.list', 'slack_uri_delete': 'slack.com/api/files.delete', 'filename': 'nonexistence.txt', 'testname': 'delete nonexistent file' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 
+            'slack_uri_delete': 'slack.com/api/files.delete', 
+            'filename': 'slack_api_test.png', 
+            'testname': 'delete PNG file' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 
+            'slack_uri_delete': 'slack.com/api/files.delete', 
+            'filename': 'content.txt', 
+            'testname': 'delete file uploaded through Content' },
+        { 'slack_uri_list': 'slack.com/api/files.list', 
+            'slack_uri_delete': 'slack.com/api/files.delete', 
+            'filename': 'nonexistence.txt', 
+            'testname': 'delete nonexistent file' },
     ])
     def test_files_delete(self, remote_slack, connector_slack, slack_uri_list, slack_uri_delete, filename, testname):
         '''
@@ -137,6 +150,16 @@ class TestFiles(object):
                             time.sleep(time_to_wait)
                         else:
                             raise type(e)("Internet connection is still broken.")
+                # This is the normal path where the file to be deleted exists
+                for i in range(tries):
+                    try:
+                        resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
+                        verifier.verify_false(filename in cont)
+                    except SSLError as e:
+                        if(i < tries - 1):
+                            time.sleep(time_to_wait)
+                        else:
+                            raise type(e)("Internet connection is still broken.")
                 found = True
                 break
 
@@ -151,17 +174,6 @@ class TestFiles(object):
                     cont_dic = json.loads(cont)
                     verifier.verify_true(str(cont_dic['error']) == "file_not_found")
                     break
-                except SSLError as e:
-                    if(i < tries - 1):
-                        time.sleep(time_to_wait)
-                    else:
-                        raise type(e)("Internet connection is still broken.")
-        else:
-            # This is the normal path where the file to delete exists
-            for i in range(tries):
-                try:
-                    resp, cont = restconn.make_request("GET", slack_uri_list, urlparam=urlparams)
-                    verifier.verify_false(filename in cont)
                 except SSLError as e:
                     if(i < tries - 1):
                         time.sleep(time_to_wait)

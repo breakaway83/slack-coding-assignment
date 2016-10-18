@@ -6,6 +6,7 @@ Linux & OSX:
 source ./setTestEnv
 
 Run tests:
+cd tests/slack_api
 pytest -v --test_token='your_slack_test_token' test_files.py
 
 ===Notes===

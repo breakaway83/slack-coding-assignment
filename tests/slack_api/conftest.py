@@ -18,19 +18,19 @@ LOGGER = Logging().logger
 
 @pytest.fixture(scope="session")
 def remote_slack(request):
-        '''
-        Slack Deployment
-        '''
-        LOGGER.info("Inside remote slack deployment fixture")
-        slack_base_url = request.config.option.slack_base_url \
-                    if hasattr(request.config.option, 'slack_base_url') else \
-                    ''
-        test_token = request.config.option.test_token \
-                if hasattr(request.config.option, 'test_token') else \
-                ''
-        remote_slack= AWSSlack(slack_base_url)
-        remote_slack.set_test_token_to_use(test_token)
-        return remote_slack
+    '''
+    Slack Deployment
+    '''
+    LOGGER.info("Inside remote slack deployment fixture")
+    slack_base_url = request.config.option.slack_base_url \
+            if hasattr(request.config.option, 'slack_base_url') else \
+            ''
+    test_token = request.config.option.test_token \
+            if hasattr(request.config.option, 'test_token') else \
+            ''
+    remote_slack= AWSSlack(slack_base_url)
+    remote_slack.set_test_token_to_use(test_token)
+    return remote_slack
 
 @pytest.fixture(scope="session")
 def connector_slack(request, remote_slack):
