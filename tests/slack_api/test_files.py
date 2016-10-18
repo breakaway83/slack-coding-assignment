@@ -27,7 +27,7 @@ class TestFiles(object):
             'slack_uri_upload': 'slack.com/api/files.upload', 
             'filename': 'slack_api_test.png', 'testname': 'upload PNG file' },
     ])
-    def test_files_upload(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, filename, testname):
+    def test_files_upload_list(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, filename, testname):
         '''
         This is to test both files.upload and files.list of a PNG file
         '''
@@ -83,7 +83,7 @@ class TestFiles(object):
             'filename': 'content.txt', 
             'testname': 'upload content' },
     ])
-    def test_files_upload_content(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, content, filename, testname):
+    def test_files_content_upload_list(self, remote_slack, connector_slack, slack_uri_list, slack_uri_upload, content, filename, testname):
         '''
         This is to test upload through Content field, not File field
         '''
