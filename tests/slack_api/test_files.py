@@ -13,6 +13,7 @@ import mimetypes
 import string
 import random
 from conftest import params
+from ssl import SSLError
 
 logging = Logging("TestFiles")
 LOGGER = logging.logger
