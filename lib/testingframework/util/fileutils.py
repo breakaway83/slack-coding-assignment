@@ -2,8 +2,8 @@
 Contains various file utility methods.
 
 @author: Weimin Ma
-@contact: U{weimin@sumologic.com<mailto:weimin@sumologic.com>}
-@since: 2016-05-01
+@contact: U{wma.utd@gmail.com<mailto:wma.utd@gmail.com>}
+@since: 2016-10-18
 """
 import platform
 import os

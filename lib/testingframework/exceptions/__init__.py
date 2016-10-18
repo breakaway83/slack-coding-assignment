@@ -7,7 +7,7 @@ class UnsupportedConnectorError(BaseException):
     exception will be raised if the Manager has no subclasses associated with
     that connector type.
 
-    Also raised during creation of a connector for a sumo deployment if
+    Also raised during creation of a connector for a slack deployment if
     attempting to create a connector type which isn't supported or doesnt exist
     '''
     def __init__(self, message=None):

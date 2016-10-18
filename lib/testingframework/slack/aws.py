@@ -45,12 +45,12 @@ class AWSSlack(Slack):
     @classmethod
     def _validate_aws_url(cls, slack_url):
         '''
-        Validates the AWS URL variable.
+        Validates the Slack URL variable.
 
         Currently these are the requirements:
           - Must be a string
 
-        @raise InvalidSumoURL: If the sumo_url variable is invalid.
+        @raise InvalidSlackURL: If the slack_url variable is invalid.
         '''
         if not isinstance(slack_url, str):
             raise InvalidSlackURL('slack_url must be a string')

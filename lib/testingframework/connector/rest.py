@@ -98,7 +98,7 @@ class RESTConnector(Connector):
         if use_sessionkey:
             self._service.clear_credentials()
             self.update_headers('Authorization',
-                                'Sumo %s' % self.sessionkey)
+                                'Slack %s' % self.sessionkey)
         else:
             if not self._service.credentials:
                 self._service.add_credentials(self._username, self._password)
@@ -191,14 +191,14 @@ class RESTConnector(Connector):
         """
         Called when the object is being deallocated.
 
-        It unregisters itself with the Sumo start listeners.
+        It unregisters itself with the slack start listeners.
 
         """
         self.slack.unregister_start_listener(self)
 
     def __call__(self):
         """
-        Called when the Sumo deployment class notifies REST connector listener
+        Called when the slack deployment class notifies REST connector listener
 
         Need it as local deployment notify method invokes l() and then
         service will be recreated and initialized with default values
