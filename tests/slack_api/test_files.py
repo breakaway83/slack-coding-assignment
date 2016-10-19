@@ -26,6 +26,7 @@ class TestFiles(object):
     '''
     Test cases handle the following exceptions/errors:
         token_revoked
+        invalid_auth
         file_not_found
         AssertionError
         SSLError
@@ -62,6 +63,8 @@ class TestFiles(object):
         except AssertionError as e:
             if(cont_dic['error'] == 'token_revoked'):
                 raise type(e)("test token is revoked")
+            elif(cont_dic['error'] == 'invalid_auth'):
+                raise type(e)("invalid auth")
         # Verify that files.list lists the file
         # According to my observation, sometime the posted files take sometime to show up in
         # the files.list result, consider using pooling
@@ -115,6 +118,8 @@ class TestFiles(object):
         except AssertionError as e:
             if(cont_dic['error'] == 'token_revoked'):
                 raise type(e)("test token is revoked")
+            elif(cont_dic['error'] == 'invalid_auth'):
+                raise type(e)("invalid auth")
         # Verify that files.list shows the file
         for i in range(tries):
             try:
@@ -155,6 +160,8 @@ class TestFiles(object):
         except AssertionError as e:
             if(cont_dic['error'] == 'token_revoked'):
                 raise type(e)("test token is revoked")
+            elif(cont_dic['error'] == 'invalid_auth'):
+                raise type(e)("invalid auth")
         files_list = cont_dic['files']
         found = False
         for file in files_list:
