@@ -16,7 +16,6 @@ import time
 import sys
 import re
 from testingframework.log import Logging
-import testingframework.util.archiver as archiver
 from .base import Slack
 
 
